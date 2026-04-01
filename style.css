@@ -1,0 +1,1034 @@
+/* ========================================================
+   CSS CUSTOM PROPERTIES (Variables)
+   ========================================================
+   Defined once here at the top and reused throughout.
+   If we ever change the brand colour, we change it in one
+   place and it updates everywhere automatically.
+   :root means "apply these to the whole document".
+======================================================== */
+:root {
+  --cream:        #F5F0E8;       /* page background */
+  --cream-dark:   #EDE7D9;       /* card/section backgrounds */
+  --charcoal:     #1C1C1E;       /* dark output card background */
+  --charcoal-mid: #2C2C2E;       /* slightly lighter dark (card sections) */
+  --terracotta:   #C1440E;       /* accent colour */
+  --terracotta-lt:#E8643A;       /* lighter accent for hover states */
+  --text-dark:    #1C1C1E;       /* primary text colour */
+  --text-mid:     #5A5A5A;       /* secondary/label text */
+  --text-light:   #9A9A9A;       /* placeholder/preset value text */
+  --text-cream:   #F5F0E8;       /* text on dark backgrounds */
+  --border:       #DDD5C5;       /* input borders */
+  --badge-preset: #F8DBCB;       /* PRESET badge background */
+  --badge-preset-text: #5A5A5A;  /* PRESET badge text */
+  --badge-custom: #C1440E;       /* CUSTOM x badge background */
+  --badge-custom-text: #FFFFFF;  /* CUSTOM x badge text */
+  --badge-custom-hover: #E8643A; /* CUSTOM x hover background */
+  --advisory:     #D4A017;       /* advisory/warning text on dark backgrounds */
+  --font-serif:   'Playfair Display', Georgia, serif;
+  --font-sans:    'Inter', system-ui, sans-serif;
+  --radius:       8px;           /* default border radius */
+  --radius-lg:    12px;          /* larger radius for cards */
+}
+
+/* ========================================================
+   DARK MODE OVERRIDES
+   ========================================================
+   When data-theme="dark" is set on <html>, these values
+   replace the :root defaults above. Only variables that
+   differ in dark mode are listed here.
+======================================================== */
+[data-theme="dark"] {
+  --cream:        #1A1A1A;   /* page background — deepest dark */
+  --cream-dark:   #252525;   /* card/section backgrounds */
+  --charcoal:     #303030;   /* nav + output card — lighter than page */
+  --charcoal-mid: #3C3C3C;   /* output card inner rows */
+  --text-dark:    #F0EBE1;   /* primary text — inverted cream */
+  --text-mid:     #9A9A9A;   /* label text */
+  --text-light:   #6A6A6A;   /* preset/placeholder text */
+  --border:       #3A3A3A;   /* input borders */
+  --badge-preset: #5E3A2C;   /* muted clay chip for dark mode */
+  --badge-preset-text: #F5F0E8;
+  --badge-custom: #A9441B;   /* tuned to sit with preset chip */
+  --badge-custom-text: #F5F0E8;
+  --badge-custom-hover: #C55A2C;
+}
+
+/* ========================================================
+   RESET & BASE STYLES
+   ========================================================
+   Browsers apply their own default styles (margins, padding,
+   box sizing) which differ slightly between Firefox/Chrome.
+   This block normalises everything to a consistent baseline.
+======================================================== */
+*, *::before, *::after {
+  /* box-sizing: border-box means padding/border are included
+     in an element's width — the sane default for layout */
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ========================================================
+   NAVIGATION BAR
+======================================================== */
+.nav {
+  background-color: var(--charcoal);
+  padding: 0 24px;
+  height: 56px;
+  /* flexbox: makes children sit side by side and vertically
+     centred — the standard approach for nav bars */
+  display: flex;
+  align-items: center;
+}
+
+.nav-brand {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--text-cream);
+  letter-spacing: 0.02em;
+}
+
+.nav-brand span {
+  color: var(--terracotta);
+}
+
+.theme-toggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-cream);
+  padding: 6px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.theme-toggle:hover {
+  opacity: 1;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+}
+
+/* ========================================================
+   PAGE HEADER (below nav)
+======================================================== */
+.page-header {
+  text-align: center;
+  padding: 40px 24px 32px;
+}
+
+.page-header h1 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.page-header p {
+  font-size: 0.875rem;
+  color: var(--text-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ========================================================
+   MAIN LAYOUT
+   ========================================================
+   Mobile-first: single column by default.
+   At 768px+ it becomes two equal columns side by side.
+   CSS Grid is used here — best tool for two-column page
+   layouts. gap sets the space between columns.
+======================================================== */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.layout {
+  display: grid;
+  /* Single column on mobile */
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* At 768px+, switch to two equal columns */
+@media (min-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .col-outputs {
+    position: sticky;
+    top: 24px;
+  }
+
+  .main {
+    padding: 0 24px 48px;
+  }
+}
+
+/* ========================================================
+   INPUT CARDS (cream section boxes)
+======================================================== */
+.card {
+  background-color: var(--cream-dark);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card:last-child {
+  margin-bottom: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  color: var(--text-dark);
+}
+
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  letter-spacing: 0.02em;
+}
+
+/* ========================================================
+   FIELD GRID (2-column grid inside each card)
+======================================================== */
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field-grid.single {
+  grid-template-columns: 1fr;
+}
+
+/* Inner grid collapses to single column on small phones */
+@media (max-width: 480px) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Leavener toggle wraps below the card title when space is tight */
+  .card-header {
+    flex-wrap: wrap;
+  }
+  .leavener-toggle {
+    width: 100%;
+    margin-top: 4px;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ========================================================
+   INPUT FIELDS
+======================================================== */
+.input-wrap input[type="number"],
+.input-wrap input[type="time"],
+.input-wrap select {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  appearance: none;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input-wrap input[type="number"],
+.slider-number {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.input-wrap input[type="number"]:focus,
+.input-wrap input[type="time"]:focus,
+.input-wrap select:focus {
+  border-color: var(--terracotta);
+}
+
+/* Preset state: greyed text signals auto-filled value */
+.input-wrap input.is-preset {
+  color: var(--text-light);
+}
+
+/* Remove browser default number input spin arrows */
+.input-wrap input[type="number"]::-webkit-inner-spin-button,
+.input-wrap input[type="number"]::-webkit-outer-spin-button,
+.slider-number::-webkit-inner-spin-button,
+.slider-number::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Custom dropdown arrow via background SVG */
+.input-wrap.has-select::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  width: 10px;
+  height: 6px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235A5A5A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .input-wrap.has-select::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239A9A9A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.input-wrap.has-select select {
+  padding-right: 32px;
+}
+
+/* ========================================================
+   FIELD LABEL ROW
+   ========================================================
+   Sits above each input: label on the left, badge on the right.
+   display: flex + space-between pushes the two apart naturally.
+======================================================== */
+.field-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 22px;
+  position: relative;
+}
+
+/* ========================================================
+   PRESET / CUSTOM x BADGES
+   ========================================================
+   Inline element inside .field-label-row, to the right of
+   the field label. No longer absolutely positioned.
+======================================================== */
+.badge {
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: default;
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.badge.preset {
+  background: var(--badge-preset);
+  color: var(--badge-preset-text);
+}
+
+.badge.custom {
+  background: var(--badge-custom);
+  color: var(--badge-custom-text);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.badge.custom:hover {
+  background: var(--badge-custom-hover);
+}
+
+/* ========================================================
+   TOOLTIPS
+======================================================== */
+.tooltip-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  cursor: pointer;
+  color: var(--text-light);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tooltip-btn[hidden] {
+  display: none;
+}
+
+.tooltip-btn:hover {
+  color: var(--text-mid);
+}
+
+.tooltip-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  background: var(--cream-dark);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-dark);
+  max-width: 280px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+/* ========================================================
+   BAKE TIME ROW (hour stepper + AM/PM toggle side by side)
+======================================================== */
+.bake-time-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Stepper: left arrow | hour display | right arrow */
+.hour-stepper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--cream);
+  overflow: hidden;
+}
+
+.hour-stepper button {
+  width: 40px;
+  height: 100%;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hour-stepper button:hover {
+  background: var(--cream-dark);
+  color: var(--text-dark);
+}
+
+.hour-stepper-display {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  user-select: none;
+}
+
+/* Auto/calculated state: grey text signals the value is computed, not user-set */
+.hour-stepper-display.is-auto {
+  color: var(--text-light);
+}
+
+/* AM/PM toggle — same visual style as the leavener toggle
+   but sized to match the 40px input height */
+.ampm-toggle {
+  display: flex;
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.ampm-toggle button {
+  width: 48px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ampm-toggle button.active {
+  background: var(--terracotta);
+  color: white;
+}
+
+.ampm-toggle button:hover:not(.active) {
+  background: var(--cream-dark);
+}
+
+/* ========================================================
+   LEAVENER TOGGLE (IDY / FRESH)
+======================================================== */
+.leavener-toggle {
+  display: flex;
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.leavener-toggle button {
+  flex: 1;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.leavener-toggle button.active {
+  background: var(--terracotta);
+  color: white;
+}
+
+.leavener-toggle button:hover:not(.active) {
+  background: var(--cream-dark);
+}
+
+/* Sourdough Starter card — hidden until sourdough mode selected */
+#sourdoughCard {
+  display: none;
+}
+
+#sourdoughCard.visible {
+  display: block;
+}
+
+/* Starter detail block — shown only in sourdough mode, below the Starter ingredient row */
+.starter-detail {
+  display: none;
+  padding: 6px 0 2px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 4px;
+}
+
+.starter-detail.visible {
+  display: block;
+}
+
+.starter-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 3px 0;
+}
+
+.starter-detail-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.starter-detail-value {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Feed Ratio — three number inputs with colon separators */
+.feed-ratio-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-ratio-row input[type="number"] {
+  flex: 1;
+  height: 40px;
+  padding: 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.feed-ratio-row input[type="number"]:focus {
+  border-color: var(--terracotta);
+}
+
+.feed-ratio-row input[type="number"]::-webkit-inner-spin-button,
+.feed-ratio-row input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.feed-ratio-sep {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ========================================================
+   SLIDER FIELDS
+======================================================== */
+.slider-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slider-field label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/*
+  The range input (slider).
+  Browsers render sliders with completely different default
+  styles. We override everything for a consistent look.
+*/
+input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+}
+
+/* The draggable thumb — 44px minimum for mobile touch targets */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  cursor: pointer;
+  margin-top: -8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.slider-number {
+  width: 68px;
+  height: 40px;
+  padding: 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--text-dark);
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.slider-number:focus {
+  border-color: var(--terracotta);
+}
+
+.slider-number::-webkit-inner-spin-button,
+.slider-number::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ========================================================
+   OUTPUT CARD (dark charcoal panel)
+======================================================== */
+.output-card {
+  background: var(--charcoal);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  color: var(--text-cream);
+}
+
+
+.output-header {
+  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.output-header-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  stroke: var(--text-cream);
+}
+
+.output-header-title {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--text-cream);
+  opacity: 0.9;
+}
+
+.total-weight {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.total-weight-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  margin-bottom: 4px;
+}
+
+.total-weight-value {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  color: var(--text-cream);
+  line-height: 1;
+}
+
+.total-weight-value span {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  opacity: 0.6;
+  margin-left: 4px;
+}
+
+.sourdough-warning {
+  display: none;
+  padding: 14px 20px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--terracotta-lt);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sourdough-warning.visible {
+  display: block;
+}
+
+.overproof-advisory {
+  display: none;
+  padding: 14px 20px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--advisory);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.overproof-advisory.visible {
+  display: block;
+}
+
+.starter-pct-hint {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: #999;
+}
+
+.ingredients {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.ingredient {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ingredient-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.5);
+}
+
+.ingredient-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-cream);
+  /*
+    When numbers change, they briefly fade to 40% opacity
+    then snap back. Signals to the user that recalculation occurred.
+    Especially useful on mobile where the output card is below the inputs.
+  */
+  transition: opacity 0.15s;
+}
+
+.ingredient-value.updating {
+  opacity: 0.4;
+}
+
+.ingredient-value .unit {
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.5;
+  margin-left: 2px;
+}
+
+/* ========================================================
+   BAKE SCHEDULE
+======================================================== */
+.schedule {
+  padding: 20px;
+}
+
+.schedule-title {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  margin-bottom: 16px;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+
+.step-dot-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 3px;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+/* SVG icon replacing the dot */
+.step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.7);
+  flex-shrink: 0;
+}
+
+.timeline-step:last-child .step-icon {
+  color: var(--terracotta);
+}
+
+/* Small dot for prep steps */
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+
+/* Larger terracotta dot for Bake */
+.step-dot.bake {
+  width: 16px;
+  height: 16px;
+  background: var(--terracotta);
+  margin-left: -3px;
+}
+
+.step-content {
+  padding-bottom: 20px;
+  flex: 1;
+}
+
+.step-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-cream);
+  margin-bottom: 2px;
+}
+
+.step-name.bake {
+  color: var(--terracotta);
+  font-size: 0.9rem;
+}
+
+.step-time {
+  font-size: 0.8rem;
+  color: rgba(245,240,232,0.55);
+}
+
+.step-detail {
+  font-size: 0.75rem;
+  color: rgba(245,240,232,0.4);
+  margin-top: 3px;
+}
+
+/* ========================================================
+   PRINT STYLES
+   ========================================================
+   Only applied when the user prints (Ctrl+P).
+   Hides inputs, shows output full width, strips dark backgrounds.
+======================================================== */
+@media print {
+  .nav,
+  .page-header,
+  .col-inputs {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #1C1C1E !important;
+  }
+
+  .main {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .output-card {
+    background: #fff !important;
+    color: #1C1C1E !important;
+    border: 1px solid #ccc;
+    border-radius: 0;
+  }
+
+  .output-header,
+  .total-weight,
+  .ingredients,
+  .schedule {
+    border-bottom: 1px solid #ddd !important;
+  }
+
+  .output-header-title,
+  .total-weight-value,
+  .ingredient-label,
+  .ingredient-value,
+  .schedule-title,
+  .step-name,
+  .step-time {
+    color: #1C1C1E !important;
+  }
+
+  .total-weight-label {
+    color: #C1440E !important;
+  }
+
+  .sourdough-warning,
+  .overproof-advisory {
+    color: #1C1C1E !important;
+  }
+}

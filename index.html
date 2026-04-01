@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO & Social -->
+  <title>Pizza Dough Calculator | Fermentation Calculator</title>
+  <meta name="description" content="Calculate perfect pizza dough ratios and fermentation schedules for Neapolitan, New York, and other styles.">
+  <meta name="theme-color" content="#2b2b2b">
+
+  <!-- Critical Resource Hints -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="style.css" as="style">
+  <link rel="preload" href="script.js" as="script">
+
+  <!-- Google Fonts with font-display optimization -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  </noscript>
+
+  <!-- Theme: set data-theme before CSS renders to prevent flash -->
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved ? saved : (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    }());
+  </script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- SVG Icon Sprite (hidden, referenced via <use>) -->
+  <svg style="display: none;" aria-hidden="true">
+    <defs>
+      <symbol id="icon-pizza" viewBox="0 0 24 24">
+        <circle cx="17" cy="17" r="6"/>
+        <circle cx="17" cy="17" r="0.5"/>
+        <path d="M11 11c1-2 5-2 6-1"/>
+        <path d="M11 11l-9-9"/>
+        <path d="M3 2c-1.5 2 0 4 .5 5L11 11"/>
+      </symbol>
+      <symbol id="icon-scale" viewBox="0 0 24 24">
+        <path d="M12 3v18"/>
+        <path d="M6 21h12"/>
+        <path d="M22 13a4 4 0 01-8 0"/>
+        <path d="M10 13a4 4 0 01-8 0"/>
+        <path d="M6 7l-2 6"/>
+        <path d="M6 7l2 6"/>
+        <path d="M18 7l-2 6"/>
+        <path d="M18 7l2 6"/>
+        <path d="M2 7h20"/>
+      </symbol>
+      <symbol id="icon-bubbles" viewBox="0 0 24 24">
+        <circle cx="8" cy="19" r="3"/>
+        <circle cx="17" cy="15" r="4"/>
+        <circle cx="9" cy="7" r="2.5"/>
+        <circle cx="18" cy="5" r="1.5"/>
+      </symbol>
+      <symbol id="icon-document" viewBox="0 0 24 24">
+        <path d="M14 3v4a1 1 0 001 1h4"/>
+        <path d="M5 21V3a1 1 0 011-1h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1z"/>
+        <line x1="9" y1="12" x2="15" y2="12"/>
+        <line x1="9" y1="16" x2="15" y2="16"/>
+        <line x1="9" y1="8" x2="11" y2="8"/>
+      </symbol>
+      <symbol id="icon-chevron-left" viewBox="0 0 8 8">
+        <path d="M5 1L2 4L5 7" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-chevron-right" viewBox="0 0 8 8">
+        <path d="M3 1L6 4L3 7" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <!-- Timeline step icons (referenced from script.js via <use>) -->
+      <symbol id="icon-starter-jar" viewBox="0 0 24 24">
+        <!-- lid -->
+        <rect x="7" y="3" width="10" height="3" rx="1"/>
+        <!-- jar body -->
+        <path d="M6 6h12l-1 13a2 2 0 01-2 2H9a2 2 0 01-2-2L6 6z"/>
+        <!-- bubbles rising inside jar -->
+        <circle cx="10" cy="15" r="1"/>
+        <circle cx="14" cy="12" r="1"/>
+        <circle cx="12" cy="9" r="0.75"/>
+      </symbol>
+      <symbol id="icon-timeline-feed-starter" viewBox="0 0 24 24">
+        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10"/>
+        <path d="M12 8v4l2 2"/>
+        <path d="M18 2v4h4"/>
+      </symbol>
+      <symbol id="icon-timeline-mix-dough" viewBox="0 0 24 24">
+        <path d="M4 13c0 4.4 3.6 8 8 8s8-3.6 8-8H4z"/>
+        <path d="M8 8c1-2 7-2 8 0"/>
+        <line x1="12" y1="2" x2="12" y2="6"/>
+      </symbol>
+      <symbol id="icon-timeline-move-to-fridge" viewBox="0 0 24 24">
+        <line x1="12" y1="2" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        <line x1="19.07" y1="4.93" x2="4.93" y2="19.07"/>
+        <line x1="12" y1="6" x2="9" y2="3"/>
+        <line x1="12" y1="6" x2="15" y2="3"/>
+        <line x1="12" y1="18" x2="9" y2="21"/>
+        <line x1="12" y1="18" x2="15" y2="21"/>
+        <line x1="6" y1="12" x2="3" y2="9"/>
+        <line x1="6" y1="12" x2="3" y2="15"/>
+        <line x1="18" y1="12" x2="21" y2="9"/>
+        <line x1="18" y1="12" x2="21" y2="15"/>
+      </symbol>
+      <symbol id="icon-timeline-pull-from-fridge" viewBox="0 0 24 24">
+        <path d="M5 10v9a2 2 0 002 2h10a2 2 0 002-2v-9"/>
+        <polyline points="12 3 12 15"/>
+        <polyline points="8 7 12 3 16 7"/>
+      </symbol>
+      <symbol id="icon-timeline-bake" viewBox="0 0 24 24">
+        <path d="M12 22a7 7 0 007-7c0-5-4-8-4-13-2 3-3 5-4 7-1-2-1-4-1-7-4 4-5 8-5 13a7 7 0 007 7z"/>
+      </symbol>
+      <symbol id="icon-info" viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="7"/>
+        <line x1="8" y1="7.5" x2="8" y2="11"/>
+        <circle cx="8" cy="4.5" r="0.5" fill="currentColor"/>
+      </symbol>
+      <symbol id="icon-moon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <nav class="nav">
+    <div class="nav-brand">Dough <span>Formula</span></div>
+    <button class="theme-toggle" type="button" aria-label="Switch to dark mode">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <use href="#icon-moon"/>
+      </svg>
+    </button>
+  </nav>
+
+  <header class="page-header">
+    <h1>Pizza Dough Calculator</h1>
+    <p>it calculates dough</p>
+  </header>
+
+  <main class="main">
+    <div class="layout">
+
+      <div class="col-inputs">
+
+        <!-- PIZZA SETTINGS CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <svg class="card-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <use href="#icon-pizza"/>
+              </svg>
+              <h2 class="card-title">Pizza Settings</h2>
+            </div>
+          </div>
+
+          <div class="field-grid single" style="margin-bottom: 12px;">
+            <div class="field">
+              <label for="pizzaStyle">Style</label>
+              <div class="input-wrap has-select">
+                <select id="pizzaStyle" autocomplete="off">
+                  <option value="neapolitan" selected>Neapolitan</option>
+                  <option value="newyork">New York</option>
+                  <option value="canotto">Canotto</option>
+                  <option value="tonda">Tonda Romana</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label-row">
+                <label for="numBalls">Pizzas</label>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="numBalls" value="4" min="1" max="50" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-label-row">
+                <label for="ballWeight">Ball Weight (g)</label>
+                <div class="badge preset" id="ballWeightBadge">Preset</div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="ballWeight" class="is-preset" min="100" max="500" autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DOUGH RATIOS CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <svg class="card-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <use href="#icon-scale"/>
+              </svg>
+              <h2 class="card-title">Dough Ratios</h2>
+            </div>
+            <div class="leavener-toggle">
+              <button id="btnIDY" class="active" data-leavener="idy">IDY</button>
+              <button id="btnFresh" data-leavener="fresh">Fresh</button>
+              <button id="btnSourdough" data-leavener="sourdough">Sourdough</button>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label-row">
+                <label for="hydration">Hydration (%)</label>
+                <div class="badge preset" id="hydrationBadge">Preset</div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="hydration" class="is-preset" min="50" max="90" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-label-row">
+                <label for="salt">Salt (%)</label>
+                <div class="badge preset" id="saltBadge">Preset</div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="salt" class="is-preset" min="0" max="5" step="0.1" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-label-row">
+                <label for="oil">Oil (%)</label>
+                <div class="badge preset" id="oilBadge">Preset</div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="oil" class="is-preset" min="0" max="15" step="0.1" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-label-row">
+                <label for="sugar">Sugar (%)</label>
+                <div class="badge preset" id="sugarBadge">Preset</div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="sugar" class="is-preset" min="0" max="5" step="0.1" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field" id="leavenerPctField">
+              <div class="field-label-row">
+                <label for="starterPct" id="leavenerPctLabel">Yeast IDY (%)</label>
+                <button type="button" class="tooltip-btn" id="leavenerTooltipBtn" aria-label="About Starter %" aria-expanded="false" hidden>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <use href="#icon-info"/>
+                  </svg>
+                </button>
+                <div class="tooltip-popover" role="tooltip" hidden>
+                  How much starter to use as a percentage of total flour. More starter means a faster rise and less time needed.
+                </div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="starterPct" class="is-preset" min="0.001" max="5" step="0.001" autocomplete="off">
+              </div>
+              <p class="starter-pct-hint" id="starterPctHint" hidden>Suggested for your schedule: <span id="starterPctHintValue"></span>%</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SOURDOUGH STARTER CARD -->
+        <div class="card" id="sourdoughCard">
+          <div class="card-header">
+            <div class="card-header-left">
+              <svg class="card-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <use href="#icon-starter-jar"/>
+              </svg>
+              <h2 class="card-title">Sourdough Starter</h2>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label-row">
+                <label for="starterHydration">Starter Hydration (%)</label>
+                <button type="button" class="tooltip-btn" aria-label="About Starter Hydration" aria-expanded="false">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <use href="#icon-info"/>
+                  </svg>
+                </button>
+                <div class="tooltip-popover" role="tooltip" hidden>
+                  How much water is in your starter relative to the flour, by weight. At 100% you have equal parts of each. This also makes a small timing adjustment: stiffer starters tend to peak a bit later. The correction is approximate.
+                </div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="starterHydration" value="100" min="50" max="125" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-label-row">
+                <label for="feedRatio">Feed Ratio</label>
+                <button type="button" class="tooltip-btn" aria-label="About Feed Ratio" aria-expanded="false">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <use href="#icon-info"/>
+                  </svg>
+                </button>
+                <div class="tooltip-popover" role="tooltip" hidden>
+                  1:2:2 means 1 part old starter, 2 parts flour, 2 parts water by weight. Lower ratios like 1:1:1 peak faster; higher ratios like 1:4:4 or 1:5:5 slow things down and give you a longer window before peak.
+                </div>
+              </div>
+              <div class="input-wrap">
+                <select id="feedRatio" autocomplete="off">
+                  <option value="1:1:1">1:1:1</option>
+                  <option value="1:2:2" selected>1:2:2</option>
+                  <option value="1:3:3">1:3:3</option>
+                  <option value="1:4:4">1:4:4</option>
+                  <option value="1:5:5">1:5:5</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- FERMENTATION CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <svg class="card-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <use href="#icon-bubbles"/>
+              </svg>
+              <h2 class="card-title">Fermentation</h2>
+            </div>
+          </div>
+
+          <div class="slider-field" style="margin-bottom: 14px;">
+            <label>Room Time (hrs)</label>
+            <div class="slider-row">
+              <input type="range" id="roomTimeSlider" min="3" max="36" value="4" step="1" autocomplete="off">
+              <input type="number" class="slider-number" id="roomTime" value="4" min="3" max="36" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="slider-field" style="margin-bottom: 14px;">
+            <div class="field-label-row">
+              <label>Fridge Time (hrs)</label>
+              <button type="button" class="tooltip-btn" aria-label="About Fridge Time" aria-expanded="false">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <use href="#icon-info"/>
+                </svg>
+              </button>
+              <div class="tooltip-popover" role="tooltip" hidden>
+                Set to 0 for a room-temperature ferment only. A cold rise slows fermentation down and gives more time for flavour development.
+              </div>
+            </div>
+            <div class="slider-row">
+              <input type="range" id="fridgeTimeSlider" min="0" max="80" value="14" step="1" autocomplete="off">
+              <input type="number" class="slider-number" id="fridgeTime" value="14" min="0" max="80" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="field-grid" style="margin-bottom: 14px;">
+            <div class="field">
+              <label for="roomTemp">Room Temp (°C)</label>
+              <div class="input-wrap">
+                <input type="number" id="roomTemp" value="22" min="14" max="35" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="fridgeTemp">Fridge Temp (°C)</label>
+              <div class="input-wrap">
+                <input type="number" id="fridgeTemp" value="4" min="4" max="8" autocomplete="off">
+              </div>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label-row">
+                <label>Target Bake Time</label>
+              </div>
+              <div class="bake-time-row">
+                <div class="hour-stepper">
+                  <button data-step="-1" aria-label="Decrease hour">
+                    <svg width="8" height="8" fill="none" stroke="currentColor">
+                      <use href="#icon-chevron-left"/>
+                    </svg>
+                  </button>
+                  <span class="hour-stepper-display" id="bakeHourDisplay">7</span>
+                  <button data-step="1" aria-label="Increase hour">
+                    <svg width="8" height="8" fill="none" stroke="currentColor">
+                      <use href="#icon-chevron-right"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="ampm-toggle">
+                  <button id="btnAM" data-ampm="am">AM</button>
+                  <button id="btnPM" class="active" data-ampm="pm">PM</button>
+                </div>
+              </div>
+            </div>
+            <div class="field" id="warmUpField">
+              <div class="field-label-row">
+                <label>Warm-up Time</label>
+                <div class="badge preset" id="warmUpBadge">Auto</div>
+              </div>
+              <div class="hour-stepper">
+                <button data-warmup-step="-1" aria-label="Decrease warm-up">
+                  <svg width="8" height="8" fill="none" stroke="currentColor">
+                    <use href="#icon-chevron-left"/>
+                  </svg>
+                </button>
+                <span class="hour-stepper-display" id="warmUpDisplay">-- min</span>
+                <button data-warmup-step="1" aria-label="Increase warm-up">
+                  <svg width="8" height="8" fill="none" stroke="currentColor">
+                    <use href="#icon-chevron-right"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-outputs">
+        <div class="output-card">
+
+          <div class="output-header">
+            <svg class="output-header-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <use href="#icon-document"/>
+            </svg>
+            <h2 class="output-header-title">Recipe Output</h2>
+          </div>
+
+          <div class="total-weight">
+            <div class="total-weight-label">Final Dough Mass</div>
+            <div class="total-weight-value">
+              <span id="outTotalWeight">960</span><span>g</span>
+            </div>
+          </div>
+
+          <div class="sourdough-warning" id="sourdoughWarning"></div>
+          <div class="overproof-advisory" id="overproofAdvisory"></div>
+
+          <div class="ingredients" id="ingredientsSection">
+            <div class="ingredient">
+              <div class="ingredient-label" id="flourLabel">Flour</div>
+              <div class="ingredient-value" id="outFlour">—<span class="unit">g</span></div>
+            </div>
+            <div class="ingredient">
+              <div class="ingredient-label" id="waterLabel">Water</div>
+              <div class="ingredient-value" id="outWater">—<span class="unit">g</span></div>
+            </div>
+            <div class="ingredient">
+              <div class="ingredient-label">Salt</div>
+              <div class="ingredient-value" id="outSalt">—<span class="unit">g</span></div>
+            </div>
+            <div class="ingredient">
+              <div class="ingredient-label" id="yeastLabel">Yeast (IDY)</div>
+              <div class="ingredient-value" id="outYeast">—<span class="unit">g</span></div>
+            </div>
+            <div class="ingredient">
+              <div class="ingredient-label">Oil</div>
+              <div class="ingredient-value" id="outOil">—<span class="unit">g</span></div>
+            </div>
+            <div class="ingredient">
+              <div class="ingredient-label">Sugar</div>
+              <div class="ingredient-value" id="outSugar">—<span class="unit">g</span></div>
+            </div>
+          </div>
+
+          <div class="schedule">
+            <div class="schedule-title">Bake Schedule</div>
+            <div class="timeline" id="timeline"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="script.js" defer></script>
+
+</body>
+</html>
