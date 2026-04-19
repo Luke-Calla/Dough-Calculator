@@ -1,62 +1,68 @@
 # Current Product Spec
 
-**Status:** Current source of truth for product behavior
-**Scope:** What the shipped calculator does today, plus active constraints and known limitations
+Current source of truth for shipped product behavior.
+
+## When To Read This File
+
+Read this file when the task depends on current UI behavior, field behavior, output rules, constraints, or known limitations. Do not use it for detailed formulas, historical changes, or unshipped ideas.
 
 ## AI Brief
 
-- Project type: static, zero-dependency pizza dough calculator
+- Static zero-dependency pizza dough calculator
 - Main files: `index.html`, `style.css`, `script.js`
-- Architecture rule: update `state`, then recalculate and re-render; do not read from DOM for calculations
+- Secondary page: `how-it-works.html`
+- Architecture rule: update `state`, then recalculate and re-render
+- Do not read from the DOM for calculations
 - Current leavener modes: `idy`, `fresh`, `sourdough`
-- Current major shipped features: presets, live recalculation, bake schedule, sourdough mode, dark mode, contextual tooltips, dynamic overproof advisory, dynamic warm-up timing, imperial/metric toggle, how-it-works knowledge page
-- Current known model limitations: warm-up timing and starter hydration timing are approximate models, not measured lab values
-- Use `docs/spec/formulas-and-data.md` only for math, constants, and spreadsheet references
+- Use `docs/spec/formulas-and-data.md` only for math, constants, and model notes
 - Use `docs/roadmap/backlog.md` only for unshipped work
 
-## Product Overview
+## Product Goal
 
-Convert the Excel calculator into a public web tool with a better user experience while keeping the codebase simple enough to learn from and maintain without frameworks or a backend.
+Provide a public pizza dough calculator that preserves the spreadsheet model while improving usability, readability, and learnability without introducing framework or backend complexity.
 
-## Tech Constraints
+## Technical Constraints
 
-- Three-file architecture: `index.html`, `style.css`, `script.js`
-- No frameworks, no package manager, no build tools
+- Three-file app architecture: `index.html`, `style.css`, `script.js`
 - Static hosting only
-- Custom domain optional
+- No frameworks
+- No package manager
+- No build tools
+- No backend or persistence layer
 
 ## Core Invariants
 
 - `state` is the single source of truth
-- Calculations must not read values back from the DOM
-- Lookup tables are calibrated constants copied from the spreadsheet model
-- Preset-driven values can be overridden, then reverted cleanly
+- Calculations must not read from the DOM
+- Internal units stay metric even when imperial display is active
+- Lookup tables and calibrated thresholds are authoritative constants
+- Preset-backed values can be overridden and cleanly reverted
 
-## Current Feature Set
+## Shipped Feature Set
 
-- Yeast and sourdough support
+- Pizza style presets for ball weight, hydration, salt, oil, and sugar
+- Live recalculation with 300ms debounce
+- IDY, fresh yeast, and sourdough modes
+- Sourdough starter percentage suggestion with user override
 - Responsive layout: stacked on mobile, two columns on desktop
-- Live calculation with 300ms debounce
-- Preset and custom override handling for style-driven recipe fields
 - Bake schedule with relative day labels
 - Dynamic warm-up timing with optional manual override
-- Leavener toggle with mode-specific output changes
+- Dynamic overproof advisory
+- Contextual tooltips for selected fermentation/sourdough fields
 - Dark mode with system default and persisted user override
-- Print-friendly recipe card
-- URL-ready architecture, but share links are not yet shipped
-- Dynamic overproof advisory based on leavener percentage and room temperature
-- Contextual tooltips for selected fermentation fields
-- Imperial/metric toggle: converts all weights (g ↔ oz) and temperatures (°C ↔ °F) at the display boundary; internal state always metric
+- Imperial/metric display toggle
+- Print-friendly output card
+- Standalone `how-it-works.html` knowledge page
 
-## Current Inputs
+## Inputs
 
 ### Pizza Settings
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | Pizza Style | Dropdown | Neapolitan | Drives preset recipe fields |
-| Pizzas | Number | 4 | Always direct input |
-| Ball Weight (g / oz) | Number | From style | Preset-capable; unit follows unit toggle |
+| Pizzas | Number | 4 | Direct input only |
+| Ball Weight | Number | From style | Preset-capable; displayed in g or oz |
 
 ### Dough Ratios
 
@@ -74,9 +80,10 @@ Convert the Excel calculator into a public web tool with a better user experienc
 |---|---|---|---|
 | Room Time (hrs) | Slider + number | 4 | Range 3-36 |
 | Fridge Time (hrs) | Slider + number | 14 | Range 0-80 |
-| Room Temp (°C / °F) | Number | 22°C | Range 14–35°C (57–95°F); unit follows unit toggle |
-| Fridge Temp (°C / °F) | Number | 4°C | Range 4–8°C (39–46°F); unit follows unit toggle |
-| Target Bake Time | Hour stepper + AM/PM | 7 PM | Display/schedule anchor |
+| Room Temp | Number | 22 C | Range 14-35 C, displayed in C or F |
+| Fridge Temp | Number | 4 C | Range 4-8 C, displayed in C or F |
+| Target Bake Time | Hour stepper + AM/PM | 7 PM | Schedule anchor |
+| Warm-up Time | Auto + override | Auto | Visible only when fridge time > 0 |
 
 ### Sourdough Starter
 
@@ -84,11 +91,11 @@ Shown only in sourdough mode.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| Starter % | Number | Auto-suggested | Range 5-25; user override allowed |
-| Starter Hydration % | Number | 100 | Range 50-125; slightly adjusts peak timing only |
+| Starter % | Number | Auto-suggested | Range 5-25; preset/custom override behavior |
+| Starter Hydration % | Number | 100 | Range 50-125; affects peak timing only |
 | Feed Ratio | Selector | 1:2:2 | Options: `1:1:1`, `1:2:2`, `1:3:3`, `1:4:4`, `1:5:5` |
 
-## Preset Values by Style
+## Style Presets
 
 | Style | Ball Weight (g) | Hydration | Salt | Oil | Sugar |
 |---|---|---|---|---|---|
@@ -99,97 +106,105 @@ Shown only in sourdough mode.
 
 ## Output Rules
 
-### Recipe output
+### Recipe Output
 
-- Always show final dough mass, flour, water, salt, oil, sugar
-- Yeast modes show `YEAST (IDY)` or `YEAST (FRESH)`
+- Always show total dough, flour, water, salt, oil, and sugar
+- Yeast modes show `Yeast (IDY)` or `Yeast (Fresh)`
 - Sourdough mode replaces the yeast row with `Starter`
-- In sourdough mode, flour and water are the quantities added to the bowl after backing out the starter contribution
+- In sourdough mode, flour and water show bowl-added amounts after backing out starter contribution
+- Starter detail output shows flour-in-starter and water-in-starter breakdown
 
-### Bake schedule
+### Schedule Output
 
-- Room-only fermentation shows `Mix Dough` and `Bake`
-- Cold fermentation shows `Mix Dough`, `Move to Fridge`, `Pull from Fridge`, `Bake`
-- Sourdough mode adds `Feed Starter` before mixing
-- `Pull from Fridge` warm-up timing is computed via Newton's law of cooling (h=5 W/m²K, covered dough, T_target=10°C); inputs are ball weight, fridge temp, and room temp independently; result auto-snaps to 15-minute intervals unless manually overridden
+- Room-only fermentation: `Mix Dough`, `Bake`
+- Cold fermentation: `Mix Dough`, `Move to Fridge`, `Pull from Fridge`, `Bake`
+- Sourdough adds `Feed Starter` before mixing
 - `Feed Starter` time is rounded to the nearest 30 minutes for display
-- Day labels are relative to bake day: `Bake day`, `Day before`, or `X days before`
+- Relative day labels use `Bake day`, `Day before`, or `X days before`
 
-### Unit toggle
+### Warm-Up Model
 
-- Segmented `Metric | Imperial` two-button control in the nav right group toggles `state.units` between `'metric'` and `'imperial'`; active button indicated by `font-weight: 600` and a terracotta underline on the label text
-- Internal state always stores grams and °C; conversion is applied only at the display boundary
-- Weights convert via `g × 0.035274` (displayed to 2 decimal places in oz)
-- Temperatures convert via standard °C ↔ °F formulas; display values are rounded to nearest integer for both °F and °C
-- Ball weight input min/max updates to equivalent oz bounds on toggle
-- Temperature input min/max updates to equivalent °F bounds on toggle
-- Feed Starter schedule detail quantities also convert to oz when in imperial mode
+- Warm-up time is based on Newton's law of cooling
+- Inputs are ball weight, fridge temperature, and room temperature
+- Assumptions: covered dough, heat transfer coefficient `h = 5 W/m^2K`, target dough temperature `10 C`
+- Auto-calculated warm-up is snapped to a 15-minute grid
+- User can override warm-up manually
+
+### Unit Toggle
+
+- Segmented `Metric | Imperial` control toggles `state.units`
+- Internal state always stores grams and Celsius
+- Conversion is applied only at input/output boundaries
+- Weights display in oz to 2 decimal places in imperial mode
+- Temperatures display as rounded integers in both units
+- Feed-starter schedule quantities also follow the unit toggle
 
 ## Interaction Rules
 
-### Preset and custom overrides
+### Preset And Custom Overrides
 
 - Style-driven fields default to preset values
-- User edits create a custom override
-- Reverting to the exact preset value removes the override
-- If a preset-capable input is cleared and blurred, it restores its effective value
-- Switching pizza style clears overrides for hydration, salt, oil, sugar, and leavener % (style-chemistry fields); ball weight and num balls overrides are preserved
+- User edits create custom overrides
+- Reverting to the effective preset removes the override
+- Clearing a preset-capable input and blurring restores its effective value
+- Style changes clear hydration, salt, oil, sugar, and leavener-related overrides
+- Style changes preserve the intended user-owned fields such as pizza count and ball-weight override
 
-### Live updates
+### Live Input Behavior
 
-- Recalculate on input changes with 300ms debounce
-- Inputs clamp to valid min and max ranges on blur
-- Inputs are rounded to target precision on blur, never mid-type:
-  - Integer (0 d.p.): room temp, fridge temp, ball weight, starter hydration, room time, fridge time
-  - 1 decimal place: hydration, salt, oil, sugar, sourdough starter %
-  - 3 decimal places: yeast %
-- Number inputs select all on focus
+- Recalculate on change with 300ms debounce
+- Clamp inputs to valid bounds on blur
+- Round on blur, never mid-type
+- Focus selects the full numeric input value
+
+Current blur precision:
+
+- 0 d.p.: room temp, fridge temp, ball weight, starter hydration, room time, fridge time
+- 1 d.p.: hydration, salt, oil, sugar, starter %
+- 3 d.p.: yeast %
 
 ### Tooltips
 
-- One tooltip open at a time
-- Desktop uses hover support
-- Mobile uses tap support
-- Escape and blur close active tooltip
+- Only one tooltip open at a time
+- Desktop supports hover and click
+- Mobile supports tap
+- Escape, blur, or outside interaction closes the active tooltip
 
-### Mobile keyboard scroll
+### Mobile Keyboard Handling
 
-- On touch-only devices (`hover: none`), focusing any input or select triggers a 300ms delayed `scrollIntoView` to keep the field visible above the soft keyboard
-- Has no effect on desktop
+- On touch-only devices, focusing an input or select triggers delayed `scrollIntoView`
+- Desktop behavior is unaffected
 
-## Layout
+## Layout And Branding
 
 - Mobile-first CSS
 - Breakpoint at 768px
-- Desktop: inputs left, output card right
-- Mobile: single column with output below inputs
-
-## Branding
-
-- Functional name: Pizza Dough Calculator
-- Nav placeholder brand: Dough Formula
+- Desktop layout: inputs left, output right
+- Mobile layout: single column, output below inputs
+- Brand name in nav: `Dough Formula`
+- Functional name: `Pizza Dough Calculator`
 - Typography: Playfair Display + Inter
-- Palette: cream background, dark charcoal output card, terracotta accents
+- Palette: cream background, charcoal output card, terracotta accents
 
 ## Navigation
 
-- Nav splits into `nav-left` (brand + divider + page link) and `nav-right` (unit toggle + theme toggle)
-- All interactive nav elements share a ghost-button baseline: 44px min touch target, `rgba(255,255,255,0.05)` hover bg, `opacity: 0.6` resting, `0.2s ease-in-out` transition
-- Page link (How It Works / Calculator) is uppercase, `font-weight: 500`, `0.72rem`, `letter-spacing: 0.06em`; collapses to an icon at <640px
-- Brand divider is a `1px × 16px` block at `opacity: 0.2`
-- `how-it-works.html` nav mirrors the same structure with a Calculator link in `nav-left`
+- `nav-left`: brand, divider, page link
+- `nav-right`: unit toggle, theme toggle
+- Shared ghost-button baseline across nav controls
+- `how-it-works.html` mirrors the same nav structure and theme behavior
 
 ## Known Limitations
 
-- Warm-up timing for `Pull from Fridge` is model-derived rather than experimentally validated
-- Starter hydration slightly adjusts sourdough peak timing, but the correction is approximate
-- URL sharing is designed but not shipped
+- Warm-up timing is model-derived, not experimentally validated
+- Starter hydration only lightly adjusts sourdough peak timing and is approximate
+- Overproof thresholds are calibrated estimates, not measured guarantees
+- URL sharing is architecturally ready but not shipped
 - No account, storage, or backend features
-- `how-it-works.html`: static knowledge page; no JS except theme toggle
+- `how-it-works.html` is a static knowledge page with minimal JS
 
 ## References
 
 - Calculation details: `docs/spec/formulas-and-data.md`
 - Planned work: `docs/roadmap/backlog.md`
 - Historical changes: `docs/changelog.md`
-- Working rules for code changes: `CLAUDE.md`
+- AI/code working rules: `CLAUDE.md`

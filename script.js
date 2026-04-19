@@ -110,6 +110,33 @@ const MAX_ROOM_TIME_SOURDOUGH = {
   0.25:  5,
 };
 const SOURDOUGH_STARTER_KEYS = [0.05, 0.10, 0.20, 0.25];
+const FIELD_DECIMALS = {
+  ballWeight: 0,
+  hydration: 1,
+  salt: 1,
+  oil: 1,
+  sugar: 1,
+};
+const STARTER_PCT_CONFIG = { min: 5, max: 25, step: 0.1, decimals: 1 };
+const YEAST_PCT_CONFIG = { min: 0.001, max: 5, step: 0.001, decimals: 3 };
+const BALL_WEIGHT_BOUNDS = {
+  metric: { min: 100, max: 500, step: '' },
+  imperial: {
+    min: parseFloat((100 * 0.035274).toFixed(2)),
+    max: parseFloat((500 * 0.035274).toFixed(2)),
+    step: '0.01',
+  },
+};
+const TEMP_BOUNDS = {
+  metric: {
+    room: { min: 14, max: 35, unit: '°C' },
+    fridge: { min: 4, max: 8, unit: '°C' },
+  },
+  imperial: {
+    room: { min: 57, max: 95, unit: '°F' },
+    fridge: { min: 39, max: 46, unit: '°F' },
+  },
+};
 
 
 /* =========================================================
@@ -195,16 +222,39 @@ function getStarterPct() {
     : state.sourdough.starterPctSuggested;
 }
 
+function getLeavenerPctConfig() {
+  return state.leavener === 'sourdough'
+    ? STARTER_PCT_CONFIG
+    : YEAST_PCT_CONFIG;
+}
+
+function getSuggestedLeavenerPctDisplay() {
+  if (state.leavener === 'sourdough') {
+    return Math.round(state.sourdough.starterPctSuggested * 100);
+  }
+  return parseFloat((state.yeast.pctSuggested * 100).toFixed(YEAST_PCT_CONFIG.decimals));
+}
+
+function getActiveLeavenerPctDisplay() {
+  if (state.leavener === 'sourdough') {
+    return state.sourdough.starterPctOverride !== null
+      ? Math.round(state.sourdough.starterPctOverride * 100)
+      : Math.round(state.sourdough.starterPctSuggested * 100);
+  }
+  return state.yeast.pctOverride !== null
+    ? parseFloat((state.yeast.pctOverride * 100).toFixed(YEAST_PCT_CONFIG.decimals))
+    : parseFloat((state.yeast.pctSuggested * 100).toFixed(YEAST_PCT_CONFIG.decimals));
+}
+
 // Clears the leavener % override and reverts to the suggested value.
 function clearStarterOverride() {
   const input = document.getElementById('starterPct');
   if (state.leavener === 'sourdough') {
     state.sourdough.starterPctOverride = null;
-    input.value = Math.round(state.sourdough.starterPctSuggested * 100);
   } else {
     state.yeast.pctOverride = null;
-    input.value = parseFloat((state.yeast.pctSuggested * 100).toFixed(3));
   }
+  input.value = getActiveLeavenerPctDisplay();
   input.classList.add('is-preset');
   calculate();
 }
@@ -826,18 +876,18 @@ function setLeavener(type) {
   if (type === 'sourdough') {
     label.textContent = 'Starter (%)';
     tooltipBtn.hidden = false;
-    input.min  = 5;
-    input.max  = 25;
-    input.step = 0.1;
+    input.min  = STARTER_PCT_CONFIG.min;
+    input.max  = STARTER_PCT_CONFIG.max;
+    input.step = STARTER_PCT_CONFIG.step;
   } else {
     label.textContent = type === 'idy' ? 'Yeast IDY (%)' : 'Yeast Fresh (%)';
     tooltipBtn.hidden = true;
     // Close any open tooltip popover when switching away from sourdough
     const popover = tooltipBtn.parentElement.querySelector('.tooltip-popover');
     if (popover) { popover.hidden = true; tooltipBtn.setAttribute('aria-expanded', 'false'); }
-    input.min  = 0.001;
-    input.max  = 5;
-    input.step = 0.001;
+    input.min  = YEAST_PCT_CONFIG.min;
+    input.max  = YEAST_PCT_CONFIG.max;
+    input.step = YEAST_PCT_CONFIG.step;
   }
 
   updateOutputs();
@@ -968,8 +1018,6 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
     calculate();
   });
 
-  const FIELD_DECIMALS = { ballWeight: 0, hydration: 1, salt: 1, oil: 1, sugar: 1 };
-
   input.addEventListener('blur', function() {
     const raw = parseFloat(this.value);
     if (this.value === '' || isNaN(raw)) {
@@ -1033,10 +1081,11 @@ document.getElementById('feedRatio').addEventListener('change', function () {
   input.addEventListener('input', function () {
     const val = parseFloat(this.value);
     if (isNaN(val)) return;
+    const config = getLeavenerPctConfig();
+    const clamped = clamp(val, config.min, config.max);
+    const suggested = getSuggestedLeavenerPctDisplay();
 
     if (state.leavener === 'sourdough') {
-      const clamped   = clamp(val, 5, 25);
-      const suggested = Math.round(state.sourdough.starterPctSuggested * 100);
       if (clamped === suggested) {
         state.sourdough.starterPctOverride = null;
         input.classList.add('is-preset');
@@ -1045,8 +1094,6 @@ document.getElementById('feedRatio').addEventListener('change', function () {
         input.classList.remove('is-preset');
       }
     } else {
-      const clamped   = clamp(val, 0.001, 5);
-      const suggested = parseFloat((state.yeast.pctSuggested * 100).toFixed(3));
       if (clamped === suggested) {
         state.yeast.pctOverride = null;
         input.classList.add('is-preset');
@@ -1060,25 +1107,17 @@ document.getElementById('feedRatio').addEventListener('change', function () {
 
   input.addEventListener('blur', function () {
     if (this.value === '' || isNaN(parseFloat(this.value))) {
-      if (state.leavener === 'sourdough') {
-        this.value = state.sourdough.starterPctOverride !== null
-          ? Math.round(state.sourdough.starterPctOverride * 100)
-          : Math.round(state.sourdough.starterPctSuggested * 100);
-      } else {
-        this.value = state.yeast.pctOverride !== null
-          ? parseFloat((state.yeast.pctOverride * 100).toFixed(3))
-          : parseFloat((state.yeast.pctSuggested * 100).toFixed(3));
-      }
+      this.value = getActiveLeavenerPctDisplay();
     } else {
+      const config = getLeavenerPctConfig();
+      const rounded = roundTo(clamp(parseFloat(this.value), config.min, config.max), config.decimals);
+      this.value = rounded;
+
       if (state.leavener === 'sourdough') {
-        const rounded = roundTo(clamp(parseFloat(this.value), 5, 25), 1);
-        this.value = rounded;
         if (state.sourdough.starterPctOverride !== null) {
           state.sourdough.starterPctOverride = rounded / 100;
         }
       } else {
-        const rounded = roundTo(clamp(parseFloat(this.value), 0.001, 5), 3);
-        this.value = rounded;
         if (state.yeast.pctOverride !== null) {
           state.yeast.pctOverride = rounded / 100;
         }
@@ -1281,19 +1320,20 @@ function initTheme() {
 ======================================================== */
 function syncInputDisplayToState() {
   const isImperial = state.units === 'imperial';
+  const mode = isImperial ? 'imperial' : 'metric';
 
   // Temperature inputs
   const roomTempEl = document.getElementById('roomTemp');
   roomTempEl.value = toDisplayTemp(state.inputs.roomTemp);
-  roomTempEl.min   = isImperial ? 57 : 14;
-  roomTempEl.max   = isImperial ? 95 : 35;
+  roomTempEl.min   = TEMP_BOUNDS[mode].room.min;
+  roomTempEl.max   = TEMP_BOUNDS[mode].room.max;
   document.getElementById('labelRoomTemp').textContent =
     `Room Temp (${isImperial ? '°F' : '°C'})`;
 
   const fridgeTempEl = document.getElementById('fridgeTemp');
   fridgeTempEl.value = toDisplayTemp(state.inputs.fridgeTemp);
-  fridgeTempEl.min   = isImperial ? 39 : 4;
-  fridgeTempEl.max   = isImperial ? 46 : 8;
+  fridgeTempEl.min   = TEMP_BOUNDS[mode].fridge.min;
+  fridgeTempEl.max   = TEMP_BOUNDS[mode].fridge.max;
   document.getElementById('labelFridgeTemp').textContent =
     `Fridge Temp (${isImperial ? '°F' : '°C'})`;
 
@@ -1302,15 +1342,15 @@ function syncInputDisplayToState() {
   const ballGrams    = getValue('ballWeight');
   if (isImperial) {
     ballWeightEl.value = toDisplayWeight(ballGrams);
-    ballWeightEl.min   = parseFloat((100 * 0.035274).toFixed(2));
-    ballWeightEl.max   = parseFloat((500 * 0.035274).toFixed(2));
-    ballWeightEl.step  = '0.01';
+    ballWeightEl.min   = BALL_WEIGHT_BOUNDS.imperial.min;
+    ballWeightEl.max   = BALL_WEIGHT_BOUNDS.imperial.max;
+    ballWeightEl.step  = BALL_WEIGHT_BOUNDS.imperial.step;
     document.getElementById('labelBallWeight').textContent = 'Ball Weight (oz)';
   } else {
     ballWeightEl.value = ballGrams;
-    ballWeightEl.min   = 100;
-    ballWeightEl.max   = 500;
-    ballWeightEl.step  = '';
+    ballWeightEl.min   = BALL_WEIGHT_BOUNDS.metric.min;
+    ballWeightEl.max   = BALL_WEIGHT_BOUNDS.metric.max;
+    ballWeightEl.step  = BALL_WEIGHT_BOUNDS.metric.step;
     document.getElementById('labelBallWeight').textContent = 'Ball Weight (g)';
   }
 

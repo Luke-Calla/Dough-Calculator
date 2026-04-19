@@ -1,35 +1,46 @@
 # Backlog
 
-**Status:** Unshipped work only
-**Purpose:** Keep future work separate from the current product spec
+Unshipped work only.
 
-## Next Up
+## When To Read This File
 
-### URL sharing
+Read this file when discussing future features, prioritization, or scope boundaries. Do not treat anything here as already shipped behavior.
+
+## Purpose
+
+Keep future work separate from the current product spec so implementation context stays clean.
+
+## Priority Now
+
+### URL Sharing
 
 Allow the current recipe state to round-trip through query parameters.
 
 Scope:
-- Serialize active recipe and fermentation state into the URL
-- Omit preset-backed values unless overridden
-- Support sourdough-specific fields when relevant
-- Load state from URL on page load
-- Show a lightweight banner when a recipe is loaded from a shared link
+
+- Serialize the active recipe and fermentation state into the URL
+- Omit preset-backed values unless the user has overridden them
+- Include sourdough-specific fields only when relevant
+- Load state from the URL on page load
+- Show a lightweight banner when a shared recipe is loaded
 
 Notes:
-- Architecture is already ready for this feature
-- Bake hour and AM/PM should stay personal and remain excluded
 
-### Ball weight to diameter
+- The current state architecture is already compatible with this direction
+- Personal schedule preferences like bake hour and AM/PM should remain excluded
 
-Surface the relation between dough ball weight and expected pizza diameter.
+### Ball Weight To Diameter
+
+Expose the relationship between dough-ball weight and expected pizza diameter.
 
 Options:
+
 - Read-only estimated diameter beside ball weight
 - Editable diameter field with two-way sync
 
 Preferred direction:
-- Editable field, if complexity stays manageable
+
+- Editable diameter, only if the implementation stays simple and predictable
 
 ## Lower Priority
 
@@ -40,8 +51,17 @@ Preferred direction:
 - Accessibility polish
 - Print layout mode toggle
 
-## Not In Scope
+## Internal Quality Follow-Ups
+
+These are code-quality improvements rather than shipped user features.
+
+- Add a small dev-facing invariant checker for high-risk state and calculation assumptions
+- Refactor `updateOutputs()` into smaller display-sync helpers to reduce maintenance risk
+- Add a lightweight manual console test harness for core calculation paths
+
+## Explicitly Out Of Scope
 
 - Accounts
 - Backend persistence
-- New dependencies or frameworks without explicit approval
+- Framework migration
+- New dependencies without explicit approval

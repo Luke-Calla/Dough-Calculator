@@ -215,8 +215,13 @@ body {
   justify-content: center;
 }
 
-/* Mobile: swap How It Works text for the info icon */
+/* Mobile: compact nav to fit single row */
 @media (max-width: 639px) {
+  .nav { padding: 0 12px; flex-wrap: nowrap; }
+  .nav-brand { font-size: 1rem; }
+  .nav-brand-divider { display: none; }
+  .nav-right { gap: 4px; }
+  .unit-toggle button { padding: 0 8px; font-size: 0.75rem; }
   .nav-link-text { display: none; }
   .nav-link-icon { display: block; }
   .nav-link { padding: 0 8px; min-width: 44px; justify-content: center; }
