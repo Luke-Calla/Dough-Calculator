@@ -146,12 +146,27 @@
   </svg>
 
   <nav class="nav">
-    <div class="nav-brand">Dough <span>Formula</span></div>
-    <button class="theme-toggle" type="button" aria-label="Switch to dark mode">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <use href="#icon-moon"/>
-      </svg>
-    </button>
+    <div class="nav-left">
+      <div class="nav-brand">Dough <span>Formula</span></div>
+      <span class="nav-brand-divider" aria-hidden="true"></span>
+      <a class="nav-link" href="how-it-works.html">
+        <svg class="nav-link-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <use href="#icon-info"/>
+        </svg>
+        <span class="nav-link-text">How It Works</span>
+      </a>
+    </div>
+    <div class="nav-right">
+      <div class="unit-toggle" id="unitToggle">
+        <button id="btnMetric" class="active" data-units="metric"><span>Metric</span></button>
+        <button id="btnImperial" data-units="imperial"><span>Imperial</span></button>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="Switch to dark mode">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <use href="#icon-moon"/>
+        </svg>
+      </button>
+    </div>
   </nav>
 
   <header class="page-header">
@@ -201,11 +216,11 @@
 
             <div class="field">
               <div class="field-label-row">
-                <label for="ballWeight">Ball Weight (g)</label>
+                <label for="ballWeight" id="labelBallWeight">Ball Weight (g)</label>
                 <div class="badge preset" id="ballWeightBadge">Preset</div>
               </div>
               <div class="input-wrap">
-                <input type="number" id="ballWeight" class="is-preset" min="100" max="500" autocomplete="off">
+                <input type="number" id="ballWeight" class="is-preset" min="100" max="500" step="1" autocomplete="off">
               </div>
             </div>
           </div>
@@ -234,7 +249,7 @@
                 <div class="badge preset" id="hydrationBadge">Preset</div>
               </div>
               <div class="input-wrap">
-                <input type="number" id="hydration" class="is-preset" min="50" max="90" autocomplete="off">
+                <input type="number" id="hydration" class="is-preset" min="50" max="90" step="0.1" autocomplete="off">
               </div>
             </div>
 
@@ -271,14 +286,16 @@
             <div class="field" id="leavenerPctField">
               <div class="field-label-row">
                 <label for="starterPct" id="leavenerPctLabel">Yeast IDY (%)</label>
-                <button type="button" class="tooltip-btn" id="leavenerTooltipBtn" aria-label="About Starter %" aria-expanded="false" hidden>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <use href="#icon-info"/>
-                  </svg>
-                </button>
-                <div class="tooltip-popover" role="tooltip" hidden>
-                  How much starter to use as a percentage of total flour. More starter means a faster rise and less time needed.
-                </div>
+                <span class="tooltip-wrap">
+                  <button type="button" class="tooltip-btn" id="leavenerTooltipBtn" aria-label="About Starter %" aria-expanded="false" hidden>
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <use href="#icon-info"/>
+                    </svg>
+                  </button>
+                  <div class="tooltip-popover" role="tooltip" hidden>
+                    How much starter to use as a percentage of total flour. More starter means a faster rise and less time needed.
+                  </div>
+                </span>
               </div>
               <div class="input-wrap">
                 <input type="number" id="starterPct" class="is-preset" min="0.001" max="5" step="0.001" autocomplete="off">
@@ -304,31 +321,35 @@
             <div class="field">
               <div class="field-label-row">
                 <label for="starterHydration">Starter Hydration (%)</label>
-                <button type="button" class="tooltip-btn" aria-label="About Starter Hydration" aria-expanded="false">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <use href="#icon-info"/>
-                  </svg>
-                </button>
-                <div class="tooltip-popover" role="tooltip" hidden>
-                  How much water is in your starter relative to the flour, by weight. At 100% you have equal parts of each. This also makes a small timing adjustment: stiffer starters tend to peak a bit later. The correction is approximate.
-                </div>
+                <span class="tooltip-wrap">
+                  <button type="button" class="tooltip-btn" aria-label="About Starter Hydration" aria-expanded="false">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <use href="#icon-info"/>
+                    </svg>
+                  </button>
+                  <div class="tooltip-popover" role="tooltip" hidden>
+                    How much water is in your starter relative to the flour, by weight. At 100% you have equal parts of each. This also makes a small timing adjustment: stiffer starters tend to peak a bit later. The correction is approximate.
+                  </div>
+                </span>
               </div>
               <div class="input-wrap">
-                <input type="number" id="starterHydration" value="100" min="50" max="125" autocomplete="off">
+                <input type="number" id="starterHydration" value="100" min="50" max="125" step="1" autocomplete="off">
               </div>
             </div>
 
             <div class="field">
               <div class="field-label-row">
                 <label for="feedRatio">Feed Ratio</label>
-                <button type="button" class="tooltip-btn" aria-label="About Feed Ratio" aria-expanded="false">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <use href="#icon-info"/>
-                  </svg>
-                </button>
-                <div class="tooltip-popover" role="tooltip" hidden>
-                  1:2:2 means 1 part old starter, 2 parts flour, 2 parts water by weight. Lower ratios like 1:1:1 peak faster; higher ratios like 1:4:4 or 1:5:5 slow things down and give you a longer window before peak.
-                </div>
+                <span class="tooltip-wrap">
+                  <button type="button" class="tooltip-btn" aria-label="About Feed Ratio" aria-expanded="false">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <use href="#icon-info"/>
+                    </svg>
+                  </button>
+                  <div class="tooltip-popover" role="tooltip" hidden>
+                    1:2:2 means 1 part old starter, 2 parts flour, 2 parts water by weight. Lower ratios like 1:1:1 peak faster; higher ratios like 1:4:4 or 1:5:5 slow things down and give you a longer window before peak.
+                  </div>
+                </span>
               </div>
               <div class="input-wrap">
                 <select id="feedRatio" autocomplete="off">
@@ -359,40 +380,42 @@
             <label>Room Time (hrs)</label>
             <div class="slider-row">
               <input type="range" id="roomTimeSlider" min="3" max="36" value="4" step="1" autocomplete="off">
-              <input type="number" class="slider-number" id="roomTime" value="4" min="3" max="36" autocomplete="off">
+              <input type="number" class="slider-number" id="roomTime" value="4" min="3" max="36" step="1" autocomplete="off">
             </div>
           </div>
 
           <div class="slider-field" style="margin-bottom: 14px;">
             <div class="field-label-row">
               <label>Fridge Time (hrs)</label>
-              <button type="button" class="tooltip-btn" aria-label="About Fridge Time" aria-expanded="false">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <use href="#icon-info"/>
-                </svg>
-              </button>
-              <div class="tooltip-popover" role="tooltip" hidden>
-                Set to 0 for a room-temperature ferment only. A cold rise slows fermentation down and gives more time for flavour development.
-              </div>
+              <span class="tooltip-wrap">
+                <button type="button" class="tooltip-btn" aria-label="About Fridge Time" aria-expanded="false">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <use href="#icon-info"/>
+                  </svg>
+                </button>
+                <div class="tooltip-popover" role="tooltip" hidden>
+                  Set to 0 for a room-temperature ferment only. A cold rise slows fermentation down and gives more time for flavour development.
+                </div>
+              </span>
             </div>
             <div class="slider-row">
               <input type="range" id="fridgeTimeSlider" min="0" max="80" value="14" step="1" autocomplete="off">
-              <input type="number" class="slider-number" id="fridgeTime" value="14" min="0" max="80" autocomplete="off">
+              <input type="number" class="slider-number" id="fridgeTime" value="14" min="0" max="80" step="1" autocomplete="off">
             </div>
           </div>
 
           <div class="field-grid" style="margin-bottom: 14px;">
             <div class="field">
-              <label for="roomTemp">Room Temp (°C)</label>
+              <label for="roomTemp" id="labelRoomTemp">Room Temp (°C)</label>
               <div class="input-wrap">
-                <input type="number" id="roomTemp" value="22" min="14" max="35" autocomplete="off">
+                <input type="number" id="roomTemp" value="22" min="14" max="35" step="1" autocomplete="off">
               </div>
             </div>
 
             <div class="field">
-              <label for="fridgeTemp">Fridge Temp (°C)</label>
+              <label for="fridgeTemp" id="labelFridgeTemp">Fridge Temp (°C)</label>
               <div class="input-wrap">
-                <input type="number" id="fridgeTemp" value="4" min="4" max="8" autocomplete="off">
+                <input type="number" id="fridgeTemp" value="4" min="4" max="8" step="1" autocomplete="off">
               </div>
             </div>
           </div>
@@ -459,7 +482,7 @@
           <div class="total-weight">
             <div class="total-weight-label">Final Dough Mass</div>
             <div class="total-weight-value">
-              <span id="outTotalWeight">960</span><span>g</span>
+              <span id="outTotalWeight">960</span><span id="outTotalWeightUnit">g</span>
             </div>
           </div>
 

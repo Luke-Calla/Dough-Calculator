@@ -9,7 +9,7 @@
 - Main files: `index.html`, `style.css`, `script.js`
 - Architecture rule: update `state`, then recalculate and re-render; do not read from DOM for calculations
 - Current leavener modes: `idy`, `fresh`, `sourdough`
-- Current major shipped features: presets, live recalculation, bake schedule, sourdough mode, dark mode, contextual tooltips, dynamic overproof advisory, dynamic warm-up timing
+- Current major shipped features: presets, live recalculation, bake schedule, sourdough mode, dark mode, contextual tooltips, dynamic overproof advisory, dynamic warm-up timing, imperial/metric toggle, how-it-works knowledge page
 - Current known model limitations: warm-up timing and starter hydration timing are approximate models, not measured lab values
 - Use `docs/spec/formulas-and-data.md` only for math, constants, and spreadsheet references
 - Use `docs/roadmap/backlog.md` only for unshipped work
@@ -46,6 +46,7 @@ Convert the Excel calculator into a public web tool with a better user experienc
 - URL-ready architecture, but share links are not yet shipped
 - Dynamic overproof advisory based on leavener percentage and room temperature
 - Contextual tooltips for selected fermentation fields
+- Imperial/metric toggle: converts all weights (g ↔ oz) and temperatures (°C ↔ °F) at the display boundary; internal state always metric
 
 ## Current Inputs
 
@@ -55,7 +56,7 @@ Convert the Excel calculator into a public web tool with a better user experienc
 |---|---|---|---|
 | Pizza Style | Dropdown | Neapolitan | Drives preset recipe fields |
 | Pizzas | Number | 4 | Always direct input |
-| Ball Weight (g) | Number | From style | Preset-capable |
+| Ball Weight (g / oz) | Number | From style | Preset-capable; unit follows unit toggle |
 
 ### Dough Ratios
 
@@ -73,8 +74,8 @@ Convert the Excel calculator into a public web tool with a better user experienc
 |---|---|---|---|
 | Room Time (hrs) | Slider + number | 4 | Range 3-36 |
 | Fridge Time (hrs) | Slider + number | 14 | Range 0-80 |
-| Room Temp (C) | Number | 22 | Range 14-35 |
-| Fridge Temp (C) | Number | 4 | Range 4-8 |
+| Room Temp (°C / °F) | Number | 22°C | Range 14–35°C (57–95°F); unit follows unit toggle |
+| Fridge Temp (°C / °F) | Number | 4°C | Range 4–8°C (39–46°F); unit follows unit toggle |
 | Target Bake Time | Hour stepper + AM/PM | 7 PM | Display/schedule anchor |
 
 ### Sourdough Starter
@@ -110,9 +111,19 @@ Shown only in sourdough mode.
 - Room-only fermentation shows `Mix Dough` and `Bake`
 - Cold fermentation shows `Mix Dough`, `Move to Fridge`, `Pull from Fridge`, `Bake`
 - Sourdough mode adds `Feed Starter` before mixing
-- `Pull from Fridge` warm-up timing is model-derived and auto-snaps to 15-minute intervals unless manually overridden
+- `Pull from Fridge` warm-up timing is computed via Newton's law of cooling (h=5 W/m²K, covered dough, T_target=10°C); inputs are ball weight, fridge temp, and room temp independently; result auto-snaps to 15-minute intervals unless manually overridden
 - `Feed Starter` time is rounded to the nearest 30 minutes for display
 - Day labels are relative to bake day: `Bake day`, `Day before`, or `X days before`
+
+### Unit toggle
+
+- Segmented `Metric | Imperial` two-button control in the nav right group toggles `state.units` between `'metric'` and `'imperial'`; active button indicated by `font-weight: 600` and a terracotta underline on the label text
+- Internal state always stores grams and °C; conversion is applied only at the display boundary
+- Weights convert via `g × 0.035274` (displayed to 2 decimal places in oz)
+- Temperatures convert via standard °C ↔ °F formulas; display values are rounded to nearest integer for both °F and °C
+- Ball weight input min/max updates to equivalent oz bounds on toggle
+- Temperature input min/max updates to equivalent °F bounds on toggle
+- Feed Starter schedule detail quantities also convert to oz when in imperial mode
 
 ## Interaction Rules
 
@@ -122,11 +133,16 @@ Shown only in sourdough mode.
 - User edits create a custom override
 - Reverting to the exact preset value removes the override
 - If a preset-capable input is cleared and blurred, it restores its effective value
+- Switching pizza style clears overrides for hydration, salt, oil, sugar, and leavener % (style-chemistry fields); ball weight and num balls overrides are preserved
 
 ### Live updates
 
 - Recalculate on input changes with 300ms debounce
 - Inputs clamp to valid min and max ranges on blur
+- Inputs are rounded to target precision on blur, never mid-type:
+  - Integer (0 d.p.): room temp, fridge temp, ball weight, starter hydration, room time, fridge time
+  - 1 decimal place: hydration, salt, oil, sugar, sourdough starter %
+  - 3 decimal places: yeast %
 - Number inputs select all on focus
 
 ### Tooltips
@@ -135,6 +151,11 @@ Shown only in sourdough mode.
 - Desktop uses hover support
 - Mobile uses tap support
 - Escape and blur close active tooltip
+
+### Mobile keyboard scroll
+
+- On touch-only devices (`hover: none`), focusing any input or select triggers a 300ms delayed `scrollIntoView` to keep the field visible above the soft keyboard
+- Has no effect on desktop
 
 ## Layout
 
@@ -150,13 +171,21 @@ Shown only in sourdough mode.
 - Typography: Playfair Display + Inter
 - Palette: cream background, dark charcoal output card, terracotta accents
 
+## Navigation
+
+- Nav splits into `nav-left` (brand + divider + page link) and `nav-right` (unit toggle + theme toggle)
+- All interactive nav elements share a ghost-button baseline: 44px min touch target, `rgba(255,255,255,0.05)` hover bg, `opacity: 0.6` resting, `0.2s ease-in-out` transition
+- Page link (How It Works / Calculator) is uppercase, `font-weight: 500`, `0.72rem`, `letter-spacing: 0.06em`; collapses to an icon at <640px
+- Brand divider is a `1px × 16px` block at `opacity: 0.2`
+- `how-it-works.html` nav mirrors the same structure with a Calculator link in `nav-left`
+
 ## Known Limitations
 
 - Warm-up timing for `Pull from Fridge` is model-derived rather than experimentally validated
 - Starter hydration slightly adjusts sourdough peak timing, but the correction is approximate
 - URL sharing is designed but not shipped
-- No metric/imperial toggle
 - No account, storage, or backend features
+- `how-it-works.html`: static knowledge page; no JS except theme toggle
 
 ## References
 

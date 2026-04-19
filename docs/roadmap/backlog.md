@@ -20,16 +20,6 @@ Notes:
 - Architecture is already ready for this feature
 - Bake hour and AM/PM should stay personal and remain excluded
 
-### How It Works page
-
-Add a second static page explaining the fermentation model.
-
-Scope:
-- What baker's percentages are
-- How time and temperature affect fermentation
-- What the lookup tables represent
-- Yeast vs sourdough differences
-
 ### Ball weight to diameter
 
 Surface the relation between dough ball weight and expected pizza diameter.
@@ -43,7 +33,6 @@ Preferred direction:
 
 ## Lower Priority
 
-- Metric/imperial toggle
 - Portioning step in bake schedule
 - Copy/export as plain text
 - Local saved recipes via `localStorage`

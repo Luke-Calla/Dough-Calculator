@@ -111,23 +111,6 @@ const MAX_ROOM_TIME_SOURDOUGH = {
 };
 const SOURDOUGH_STARTER_KEYS = [0.05, 0.10, 0.20, 0.25];
 
-/*
-  WTable: warm-up time in minutes for dough core to reach ~10°C from fridge temp.
-  Rows = ball weight (g), columns = ΔT (roomTemp − fridgeTemp, °C).
-  Model: Newton's law of cooling with Biot-number correction (Bi ≈ 0.5–0.6 for
-  dough balls) to account for internal temperature gradient — core temperature
-  lags the surface significantly. Calibrated to 1.5–2 h for 250–350g at ΔT 16–18°C.
-  Approximate model, not experimentally validated.
-*/
-const W_TABLE = {
-  200: { 10: 204, 12: 154, 14: 125, 16: 105, 18:  90, 20:  79, 22:  71 },
-  250: { 10: 220, 12: 166, 14: 134, 16: 113, 18:  97, 20:  85, 22:  76 },
-  300: { 10: 234, 12: 177, 14: 143, 16: 120, 18: 103, 20:  91, 22:  81 },
-  320: { 10: 239, 12: 181, 14: 146, 16: 123, 18: 106, 20:  93, 22:  83 },
-  350: { 10: 246, 12: 186, 14: 150, 16: 126, 18: 109, 20:  95, 22:  85 },
-};
-const W_TABLE_WEIGHTS = [200, 250, 300, 320, 350];
-const W_TABLE_DELTAS  = [10, 12, 14, 16, 18, 20, 22];
 
 /* =========================================================
    STATE
@@ -137,6 +120,7 @@ const W_TABLE_DELTAS  = [10, 12, 14, 16, 18, 20, 22];
 ========================================================= */
 const state = {
   leavener: 'idy',
+  units: 'metric',        // 'metric' | 'imperial'
   ampm: 'pm',
   bakeHour: 7,
   warmUpOverride: null,   // null = use calculated value; number = user-set minutes
@@ -177,6 +161,32 @@ function clamp(val, min, max) {
   return Math.min(Math.max(val, min), max);
 }
 
+/* =========================================================
+   UNIT CONVERSION
+   =========================================================
+   All internal state and calculations stay in metric (grams, °C).
+   These helpers convert only at the input/output boundary.
+========================================================= */
+function toDisplayWeight(g) {
+  return state.units === 'imperial' ? parseFloat((g * 0.035274).toFixed(2)) : g;
+}
+function weightUnit() {
+  return state.units === 'imperial' ? 'oz' : 'g';
+}
+function toDisplayTemp(c) {
+  return state.units === 'imperial' ? Math.round(c * 9 / 5 + 32) : Math.round(c);
+}
+function roundTo(val, decimals) {
+  return parseFloat(val.toFixed(decimals));
+}
+function fromDisplayTemp(val) {
+  return state.units === 'imperial' ? (val - 32) * 5 / 9 : val;
+}
+// Convert a displayed weight value (oz or g) back to grams for storage in state
+function fromInputWeight(displayVal) {
+  return state.units === 'imperial' ? Math.round(displayVal / 0.035274) : displayVal;
+}
+
 // Returns active starter % as a decimal fraction (e.g. 0.15 = 15%).
 // Uses user override if set, otherwise the computed suggestion.
 function getStarterPct() {
@@ -213,41 +223,16 @@ function interpolate(table, rawValue, minKey, maxKey) {
   return table[lower] + fraction * (table[upper] - table[lower]);
 }
 
-// Two-axis bilinear interpolation over W_TABLE.
-// Clamps weight and deltaT to the table bounds, then interpolates in two passes:
-// first across the deltaT axis within each bracketing weight row, then across weight.
-function bilinearInterpolate(table, weightKeys, deltaKeys, weight, delta) {
-  const w = clamp(weight, weightKeys[0], weightKeys[weightKeys.length - 1]);
-  const d = clamp(delta,  deltaKeys[0],  deltaKeys[deltaKeys.length - 1]);
-
-  let wi = 0;
-  for (let i = 0; i < weightKeys.length - 1; i++) {
-    if (weightKeys[i] <= w) wi = i;
-  }
-  const w0 = weightKeys[wi];
-  const w1 = weightKeys[wi + 1] !== undefined ? weightKeys[wi + 1] : w0;
-
-  function interpDelta(row) {
-    let di = 0;
-    for (let i = 0; i < deltaKeys.length - 1; i++) {
-      if (deltaKeys[i] <= d) di = i;
-    }
-    const d0 = deltaKeys[di];
-    const d1 = deltaKeys[di + 1] !== undefined ? deltaKeys[di + 1] : d0;
-    if (d0 === d1) return row[d0];
-    return row[d0] + ((d - d0) / (d1 - d0)) * (row[d1] - row[d0]);
-  }
-
-  const v0 = interpDelta(table[w0]);
-  if (w0 === w1) return v0;
-  const v1 = interpDelta(table[w1]);
-  return v0 + ((w - w0) / (w1 - w0)) * (v1 - v0);
-}
-
-// Returns warm-up time in minutes for a dough ball to reach ~10°C.
+// Newton's law of cooling: time for covered dough ball to reach 10°C core.
+// h=5 W/m²K (covered, still air), ρ=1100 kg/m³, cp=3500 J/kgK, target=10°C.
 function calcWarmUpMinutes(ballWeight, roomTemp, fridgeTemp) {
-  const deltaT = roomTemp - fridgeTemp;
-  return bilinearInterpolate(W_TABLE, W_TABLE_WEIGHTS, W_TABLE_DELTAS, ballWeight, deltaT);
+  const TARGET = 10;
+  if (roomTemp <= TARGET || fridgeTemp >= TARGET) return 0;
+  const mass   = ballWeight / 1000;
+  const radius = Math.pow((3 * mass) / (1100 * 4 * Math.PI), 1 / 3);
+  const area   = 4 * Math.PI * radius * radius;
+  const tau    = (mass * 3500) / (5 * area) / 60; // minutes
+  return tau * Math.log((fridgeTemp - roomTemp) / (TARGET - roomTemp));
 }
 
 // Snap warm-up durations to the quarter-hour grid used by the warm-up controls.
@@ -579,7 +564,8 @@ function calcSchedule(starterWeight = 0) {
       const oldStarter = Math.round(starterWeight * A / total);
       const flourFeed  = Math.round(starterWeight * B / total);
       const waterFeed  = Math.round(starterWeight * C / total);
-      feedDetail = `Mix ${oldStarter}g old starter + ${flourFeed}g flour + ${waterFeed}g water`;
+      const feedUnit = weightUnit();
+      feedDetail = `Mix ${toDisplayWeight(oldStarter)}${feedUnit} old starter + ${toDisplayWeight(flourFeed)}${feedUnit} flour + ${toDisplayWeight(waterFeed)}${feedUnit} water`;
     }
 
     const peakDetail = `Feed ~${((mixMins - feedMins) / 60).toFixed(1)} hrs before mixing`;
@@ -661,7 +647,8 @@ function updateOutputs() {
     setTimeout(() => el.classList.remove('updating'), 150);
   });
 
-  document.getElementById('outTotalWeight').textContent = result.totalDough;
+  document.getElementById('outTotalWeight').textContent = toDisplayWeight(result.totalDough);
+  document.getElementById('outTotalWeightUnit').textContent = weightUnit();
 
   const warning          = document.getElementById('sourdoughWarning');
   const overproofAdvisory = document.getElementById('overproofAdvisory');
@@ -678,8 +665,8 @@ function updateOutputs() {
   const showAdvisory = roomTime >= overproofThreshold * 0.85;
   if (showAdvisory) {
     overproofAdvisory.textContent = state.leavener === 'sourdough'
-      ? 'Room time is approaching the overproof limit for this starter % — expect excess sourness and reduced oven spring.'
-      : 'Room time is approaching the overproof limit for this yeast % — expect slack texture and poor oven spring.';
+      ? 'Room time is approaching the overproof limit for this starter %. Expect excess sourness and reduced oven spring.'
+      : 'Room time is approaching the overproof limit for this yeast %. Expect slack texture and poor oven spring.';
   }
   overproofAdvisory.classList.toggle('visible', showAdvisory);
 
@@ -730,7 +717,7 @@ function updateOutputs() {
 }
 
 function setIngredient(id, value) {
-  document.getElementById(id).innerHTML = `${value}<span class="unit">g</span>`;
+  document.getElementById(id).innerHTML = `${toDisplayWeight(value)}<span class="unit">${weightUnit()}</span>`;
 }
 
 function getNumericBounds(input, fallbackMin = -Infinity, fallbackMax = Infinity) {
@@ -746,16 +733,30 @@ function getNumericBounds(input, fallbackMin = -Infinity, fallbackMax = Infinity
 function loadPreset(style) {
   state.presetValues = { ...PRESETS[style] };
 
+  // Clear style-chemistry overrides — these belong to the style, not the user's session
+  ['hydration', 'salt', 'oil', 'sugar'].forEach(field => {
+    delete state.userOverrides[field];
+  });
+
+  // Clear leavener % overrides so yeast/starter reverts to auto-calculated for this style
+  state.yeast.pctOverride = null;
+  state.sourdough.starterPctOverride = null;
+
+  // Re-render all recipe fields. ballWeight keeps its override if the user set one.
   ['ballWeight', 'hydration', 'salt', 'oil', 'sugar'].forEach(field => {
-    if (state.userOverrides[field] === undefined) {
-      const input = document.getElementById(field);
-      input.value = state.presetValues[field];
-      input.classList.add('is-preset');
-      const badge = document.getElementById(field + 'Badge');
-      badge.className = 'badge preset';
-      badge.textContent = 'Preset';
-      badge.onclick = null;
+    const input = document.getElementById(field);
+    const badge = document.getElementById(field + 'Badge');
+    if (field === 'ballWeight' && state.userOverrides.ballWeight !== undefined) {
+      // User has a ball weight override — leave the value, but it stays as Custom
+      return;
     }
+    input.value = field === 'ballWeight'
+      ? toDisplayWeight(state.presetValues[field])
+      : state.presetValues[field];
+    input.classList.add('is-preset');
+    badge.className = 'badge preset';
+    badge.textContent = 'Preset';
+    badge.onclick = null;
   });
 }
 
@@ -764,22 +765,26 @@ function loadPreset(style) {
    or revert to PRESET if they've typed back the preset value
 ========================================================= */
 function onPresetFieldInput(field, value) {
+  if (value.endsWith('.')) return;
   const numVal = parseFloat(value);
   if (!isNaN(numVal)) {
     const input = document.getElementById(field);
     const badge = document.getElementById(field + 'Badge');
 
-    if (numVal === state.presetValues[field]) {
+    // Ball weight input is in display units (oz or g); convert to grams for state comparison
+    const stateVal = field === 'ballWeight' ? fromInputWeight(numVal) : numVal;
+
+    if (stateVal === state.presetValues[field]) {
       // Typed value matches the preset — revert to PRESET state
       delete state.userOverrides[field];
-      input.value = state.presetValues[field];
+      input.value = field === 'ballWeight' ? toDisplayWeight(state.presetValues[field]) : state.presetValues[field];
       input.classList.add('is-preset');
       badge.className = 'badge preset';
       badge.textContent = 'Preset';
       badge.onclick = null;
     } else {
       // Typed value differs from preset — switch to CUSTOM state
-      state.userOverrides[field] = numVal;
+      state.userOverrides[field] = stateVal;
       input.classList.remove('is-preset');
       badge.className = 'badge custom';
       badge.textContent = 'Custom x';
@@ -794,7 +799,9 @@ function onPresetFieldInput(field, value) {
 function clearOverride(field) {
   delete state.userOverrides[field];
   const input = document.getElementById(field);
-  input.value = state.presetValues[field];
+  input.value = field === 'ballWeight'
+    ? toDisplayWeight(state.presetValues[field])
+    : state.presetValues[field];
   input.classList.add('is-preset');
   const badge = document.getElementById(field + 'Badge');
   badge.className = 'badge preset';
@@ -821,7 +828,7 @@ function setLeavener(type) {
     tooltipBtn.hidden = false;
     input.min  = 5;
     input.max  = 25;
-    input.step = 1;
+    input.step = 0.1;
   } else {
     label.textContent = type === 'idy' ? 'Yeast IDY (%)' : 'Yeast Fresh (%)';
     tooltipBtn.hidden = true;
@@ -920,7 +927,7 @@ function syncSlider(sliderId, inputId, stateKey) {
   input.addEventListener('blur', () => {
     const min = parseFloat(slider.min);
     const max = parseFloat(slider.max);
-    const val = clamp(parseFloat(input.value) || min, min, max);
+    const val = Math.round(clamp(parseFloat(input.value) || min, min, max));
     input.value = val;
     slider.value = val;
     state.inputs[stateKey] = val;
@@ -961,35 +968,49 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
     calculate();
   });
 
-  // On blur (clicking away): if the field was left empty or invalid,
-  // restore whatever value belongs there — the user's override if they
-  // have one, or the preset if not
+  const FIELD_DECIMALS = { ballWeight: 0, hydration: 1, salt: 1, oil: 1, sugar: 1 };
+
   input.addEventListener('blur', function() {
-    if (this.value === '' || isNaN(parseFloat(this.value))) {
-      this.value = getValue(field);
+    const raw = parseFloat(this.value);
+    if (this.value === '' || isNaN(raw)) {
+      this.value = field === 'ballWeight'
+        ? toDisplayWeight(getValue(field))
+        : getValue(field);
+    } else if (field === 'ballWeight') {
+      const grams = fromInputWeight(raw);
+      this.value = toDisplayWeight(grams);
+      onPresetFieldInput(field, this.value);
+    } else {
+      const rounded = roundTo(raw, FIELD_DECIMALS[field]);
+      this.value = rounded;
+      onPresetFieldInput(field, String(rounded));
     }
   });
 });
 
 document.getElementById('roomTemp').addEventListener('input', function() {
-  state.inputs.roomTemp = parseFloat(this.value) || 22;
+  const raw = parseFloat(this.value);
+  if (!isNaN(raw)) state.inputs.roomTemp = fromDisplayTemp(raw);
   calculate();
 });
 document.getElementById('roomTemp').addEventListener('blur', function() {
   const min = parseFloat(this.min), max = parseFloat(this.max);
-  this.value = clamp(parseFloat(this.value) || min, min, max);
-  state.inputs.roomTemp = parseFloat(this.value);
+  const val = Math.round(clamp(parseFloat(this.value) || min, min, max));
+  this.value = val;
+  state.inputs.roomTemp = fromDisplayTemp(val);
   calculate();
 });
 
 document.getElementById('fridgeTemp').addEventListener('input', function() {
-  state.inputs.fridgeTemp = parseFloat(this.value) || 5;
+  const raw = parseFloat(this.value);
+  if (!isNaN(raw)) state.inputs.fridgeTemp = fromDisplayTemp(raw);
   calculate();
 });
 document.getElementById('fridgeTemp').addEventListener('blur', function() {
   const min = parseFloat(this.min), max = parseFloat(this.max);
-  this.value = clamp(parseFloat(this.value) || min, min, max);
-  state.inputs.fridgeTemp = parseFloat(this.value);
+  const val = Math.round(clamp(parseFloat(this.value) || min, min, max));
+  this.value = val;
+  state.inputs.fridgeTemp = fromDisplayTemp(val);
   calculate();
 });
 
@@ -1050,16 +1071,16 @@ document.getElementById('feedRatio').addEventListener('change', function () {
       }
     } else {
       if (state.leavener === 'sourdough') {
-        const clamped = clamp(parseFloat(this.value), 5, 25);
-        this.value = clamped;
+        const rounded = roundTo(clamp(parseFloat(this.value), 5, 25), 1);
+        this.value = rounded;
         if (state.sourdough.starterPctOverride !== null) {
-          state.sourdough.starterPctOverride = clamped / 100;
+          state.sourdough.starterPctOverride = rounded / 100;
         }
       } else {
-        const clamped = clamp(parseFloat(this.value), 0.001, 5);
-        this.value = clamped;
+        const rounded = roundTo(clamp(parseFloat(this.value), 0.001, 5), 3);
+        this.value = rounded;
         if (state.yeast.pctOverride !== null) {
-          state.yeast.pctOverride = clamped / 100;
+          state.yeast.pctOverride = rounded / 100;
         }
       }
     }
@@ -1083,9 +1104,9 @@ document.getElementById('feedRatio').addEventListener('change', function () {
     if (this.value === '' || isNaN(parseFloat(this.value))) {
       this.value = state.sourdough.starterHydration;
     } else {
-      const clamped = clamp(parseFloat(this.value), min, max);
-      this.value = clamped;
-      state.sourdough.starterHydration = clamped;
+      const rounded = Math.round(clamp(parseFloat(this.value), min, max));
+      this.value = rounded;
+      state.sourdough.starterHydration = rounded;
     }
     calculate();
   });
@@ -1251,4 +1272,79 @@ function initTheme() {
   });
 }
 
+/* ========================================================
+   UNIT TOGGLE
+   ========================================================
+   Flips state.units between 'metric' and 'imperial', then
+   re-renders all input fields and output values in the new
+   unit system. Internal state (°C, grams) never changes.
+======================================================== */
+function syncInputDisplayToState() {
+  const isImperial = state.units === 'imperial';
+
+  // Temperature inputs
+  const roomTempEl = document.getElementById('roomTemp');
+  roomTempEl.value = toDisplayTemp(state.inputs.roomTemp);
+  roomTempEl.min   = isImperial ? 57 : 14;
+  roomTempEl.max   = isImperial ? 95 : 35;
+  document.getElementById('labelRoomTemp').textContent =
+    `Room Temp (${isImperial ? '°F' : '°C'})`;
+
+  const fridgeTempEl = document.getElementById('fridgeTemp');
+  fridgeTempEl.value = toDisplayTemp(state.inputs.fridgeTemp);
+  fridgeTempEl.min   = isImperial ? 39 : 4;
+  fridgeTempEl.max   = isImperial ? 46 : 8;
+  document.getElementById('labelFridgeTemp').textContent =
+    `Fridge Temp (${isImperial ? '°F' : '°C'})`;
+
+  // Ball weight input
+  const ballWeightEl = document.getElementById('ballWeight');
+  const ballGrams    = getValue('ballWeight');
+  if (isImperial) {
+    ballWeightEl.value = toDisplayWeight(ballGrams);
+    ballWeightEl.min   = parseFloat((100 * 0.035274).toFixed(2));
+    ballWeightEl.max   = parseFloat((500 * 0.035274).toFixed(2));
+    ballWeightEl.step  = '0.01';
+    document.getElementById('labelBallWeight').textContent = 'Ball Weight (oz)';
+  } else {
+    ballWeightEl.value = ballGrams;
+    ballWeightEl.min   = 100;
+    ballWeightEl.max   = 500;
+    ballWeightEl.step  = '';
+    document.getElementById('labelBallWeight').textContent = 'Ball Weight (g)';
+  }
+
+  document.getElementById('btnMetric').classList.toggle('active', !isImperial);
+  document.getElementById('btnImperial').classList.toggle('active', isImperial);
+}
+
+document.querySelectorAll('#unitToggle button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (state.units === btn.dataset.units) return;
+    state.units = btn.dataset.units;
+    syncInputDisplayToState();
+    updateOutputs();
+  });
+});
+
 initTheme();
+
+/* ========================================================
+   MOBILE KEYBOARD SCROLL
+   When the soft keyboard opens it shrinks the viewport and
+   can hide the focused field. We wait 300ms for the keyboard
+   animation to finish, then scroll the field to the centre
+   of whatever visible space remains.
+======================================================== */
+(function () {
+  function onFocus(e) {
+    var el = e.target;
+    if (!el.matches('input, select')) return;
+    setTimeout(function () {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  }
+  if (window.matchMedia('(hover: none)').matches) {
+    document.addEventListener('focusin', onFocus);
+  }
+}());

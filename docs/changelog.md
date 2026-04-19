@@ -1,5 +1,43 @@
 # Changelog
 
+## 2026-04-19 (session 3)
+
+- Shipped `how-it-works.html`: standalone knowledge page covering baker's percentages, yeast vs sourdough, time/temperature, and the fermentation model
+- "How to Use the Calculator" section redesigned from a centred single-column list to a full-width 2×2 tile grid
+- Added "How It Works" nav link to `index.html`; `how-it-works.html` carries a matching "Calculator" link
+
+## 2026-04-19 (session 2)
+
+- Refactored nav into `nav-left` / `nav-right` layout with shared ghost-button baseline (44px touch targets, unified opacity/hover/transition)
+- Replaced single-button metric/imperial flip with a segmented `Metric | Imperial` two-button control; active state uses `font-weight: 600` + terracotta text-decoration underline scoped to label `<span>`
+- Page link (How It Works / Calculator) restyled: uppercase, `font-weight: 500`, `0.72rem`, collapses to icon at <640px
+- Added `<span class="nav-brand-divider">` between brand and page link at `opacity: 0.2`
+- Unit toggle divider replaced border-left with a `::before` pseudo-element at `height: 12px`, `opacity: 0.3`
+- Moon icon `stroke-width` bumped to `2` to match surrounding text weight
+- Aligned `how-it-works.html` nav to same structure as main page
+- Fixed float precision bug: `toDisplayTemp` now rounds metric °C to integer, preventing multi-decimal artifacts after unit toggle round-trip
+- Fixed mid-decimal input snap: `onPresetFieldInput` now returns early when value ends with `.`, preventing preset reversion while user is mid-type (e.g. typing `1.` toward `1.5` on a field whose preset is `1`)
+- Added per-field blur rounding: integer for temps/times/ball weight/starter hydration; 1 d.p. for hydration/salt/oil/sugar/starter %; 3 d.p. for yeast %
+- Style switch now clears hydration, salt, oil, sugar, and leavener % overrides; ball weight and num balls overrides preserved
+- Overproof advisory copy: replaced em dashes with periods
+
+## 2026-04-19
+
+- Replaced warm-up time lookup table (`W_TABLE` + bilinear/trilinear interpolation) with Newton's law of cooling formula: `t = τ × ln[(T_fridge − T_room) / (T_target − T_room)]`; h=5 W/m²K (covered dough), T_target=10°C; fridge and room temps now modelled as independent axes
+- Fixed warm-up direction bug: warmer fridge now correctly produces less warm-up time (was previously inverted via ΔT-only table)
+- Removed `W_TABLE`, `W_TABLE_WEIGHTS`, `W_TABLE_FRIDGES`, `W_TABLE_ROOMS`, and `trilinearInterpolate` — `calcWarmUpMinutes` is now a closed-form formula
+- Added mobile keyboard scroll: on touch-only devices, focusing an input scrolls it into view 300ms after focus (allows keyboard animation to complete); gated on `hover: none` media query so desktop is unaffected
+
+## 2026-04-09
+
+- Shipped imperial/metric toggle: nav button switches `state.units` between `'metric'` and `'imperial'`; all internal state stays in grams/°C, conversion applied only at input/output boundary
+- Weights display as oz (2 d.p.) in imperial mode; temperatures display as °F (rounded integer) in imperial mode
+- Ball weight and temperature input min/max/step attributes update dynamically on toggle
+- Feed Starter schedule quantities convert to oz in imperial mode
+- `syncInputDisplayToState()` re-renders all affected input fields and labels when toggling
+- Removed "No metric/imperial toggle" from Known Limitations in spec
+- Fixed tooltip popovers rendering squished (single-word-wide): wrapped each `.tooltip-btn` + `.tooltip-popover` pair in a `.tooltip-wrap` span; moved `position: relative` from `.field-label-row` to `.tooltip-wrap`; popover now uses `width: 260px` and `right: 0` to anchor to the icon button
+
 ## 2026-04-01 (session 2)
 
 - Shipped dynamic warm-up time (feature 15.5): replaced hardcoded 2-hour constant with `W_TABLE` bilinear interpolation across ball weight and ΔT (roomTemp − fridgeTemp)

@@ -1,5 +1,10 @@
 {
   "enabledPlugins": {
     "edmunds-claude-code@edmunds-claude-code": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)"
+    ]
   }
 }

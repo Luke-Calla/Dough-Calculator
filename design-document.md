@@ -3,7 +3,7 @@
 
 **Project:** Pizza Dough Calculator Web Tool
 **Status:** Published, active development
-**Last Updated:** April 1, 2026 (doc structure refactor + April product updates logged in spec/changelog)
+**Last Updated:** April 19, 2026 (how-it-works page shipped)
 
 This file is now a lightweight entrypoint instead of the full design archive. The goal is to keep the default AI context small and current.
 

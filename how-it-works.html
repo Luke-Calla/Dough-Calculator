@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How It Works | Dough Formula</title>
+  <meta name="description" content="The science behind Dough Formula — baker's percentages, fermentation models, yeast vs sourdough, and time-temperature relationships.">
+  <meta name="theme-color" content="#2b2b2b">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="preload" href="style.css" as="style">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  </noscript>
+
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', saved ? saved : (prefersDark ? 'dark' : 'light'));
+    }());
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ── Hero ── */
+    .hiw-hero {
+      padding: 56px 24px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+      border-bottom: 1px solid rgba(193, 68, 14, 0.2);
+    }
+
+    .hiw-hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+
+    .hiw-hero p {
+      font-size: 1.05rem;
+      color: var(--text-mid);
+      max-width: 560px;
+      line-height: 1.65;
+    }
+
+    /* ── Main wrapper ── */
+    .hiw-main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+
+    /* ── Sections ── */
+    .hiw-section {
+      padding: 56px 0;
+      border-bottom: 1px solid rgba(193, 68, 14, 0.15);
+    }
+
+    .hiw-section:last-child {
+      border-bottom: none;
+    }
+
+    .hiw-section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 400;
+      color: var(--text-dark);
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    /* ── Two-column grid ── */
+    .hiw-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (min-width: 768px) {
+      .hiw-grid { grid-template-columns: 1fr 1fr; gap: 64px; }
+      .hiw-grid.wide-left  { grid-template-columns: 5fr 7fr; }
+      .hiw-grid.wide-right { grid-template-columns: 7fr 5fr; }
+    }
+
+    /* ── Body text ── */
+    .hiw-body {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.75;
+    }
+
+    .hiw-body p + p { margin-top: 16px; }
+
+    /* ── Step tiles (2×2 grid) ── */
+    .hiw-steps {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      background: rgba(193, 68, 14, 0.15);
+      border: 1px solid rgba(193, 68, 14, 0.15);
+    }
+
+    @media (min-width: 600px) {
+      .hiw-steps { grid-template-columns: 1fr 1fr; }
+    }
+
+    .hiw-step {
+      background: var(--cream);
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hiw-step-num {
+      font-family: var(--font-serif);
+      font-size: 3rem;
+      color: var(--terracotta);
+      line-height: 1;
+    }
+
+    .hiw-step-content h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .hiw-step-content p {
+      font-size: 0.875rem;
+      color: var(--text-mid);
+      line-height: 1.65;
+    }
+
+    /* ── Dark card ── */
+    .hiw-dark-card {
+      background: var(--charcoal);
+      color: var(--text-cream);
+      padding: 32px;
+    }
+
+    .hiw-dark-card-label {
+      display: block;
+      font-size: 0.625rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.4);
+      margin-bottom: 28px;
+    }
+
+    /* ── Baker's % table ── */
+    .hiw-pct-table { display: flex; flex-direction: column; }
+
+    .hiw-pct-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hiw-pct-name {
+      font-size: 0.9rem;
+      color: var(--text-cream);
+    }
+
+    .hiw-pct-val {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      color: var(--text-cream);
+    }
+
+    .hiw-pct-source {
+      display: block;
+      margin-top: 24px;
+      font-size: 0.625rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.28);
+      font-style: italic;
+    }
+
+    /* ── Yeast vs Sourdough comparison ── */
+    .hiw-comparison {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 600px) {
+      .hiw-comparison { grid-template-columns: 1fr 1fr; }
+    }
+
+    .hiw-comparison-col {
+      padding: 40px 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    @media (min-width: 600px) {
+      .hiw-comparison-col {
+        border-bottom: none;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .hiw-comparison-col:last-child { border-right: none; }
+    }
+
+    .hiw-comparison-icon {
+      font-size: 1.2rem;
+      color: var(--terracotta);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .hiw-comparison-col h3 {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--text-cream);
+      margin-bottom: 12px;
+    }
+
+    .hiw-comparison-col p {
+      font-size: 0.8rem;
+      color: rgba(245, 240, 232, 0.6);
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .hiw-comparison-col ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hiw-comparison-col ul li {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+    }
+
+    /* ── Fermentation curve chart ── */
+    .hiw-chart-wrap {
+      padding: 32px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .hiw-chart-title {
+      display: block;
+      font-size: 0.625rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.4);
+      margin-bottom: 48px;
+    }
+
+    .hiw-chart {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .hiw-chart svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .hiw-chart-peak {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      white-space: nowrap;
+    }
+
+    .hiw-chart-axis {
+      position: absolute;
+      bottom: -22px;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.35);
+    }
+
+    .hiw-chart-axis.left { left: 0; }
+    .hiw-chart-axis.right { right: 0; }
+
+    /* ── Stats ── */
+    .hiw-stats {
+      display: flex;
+      gap: 48px;
+      margin-top: 32px;
+    }
+
+    .hiw-stat-val {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      color: var(--text-dark);
+    }
+
+    .hiw-stat-label {
+      font-size: 0.625rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      margin-top: 4px;
+    }
+
+    /* ── Quote ── */
+    .hiw-quote {
+      font-size: 0.975rem;
+      font-style: italic;
+      color: var(--text-mid);
+      line-height: 1.75;
+    }
+
+    /* ── Fermentation timeline ── */
+    .hiw-timeline-wrap {
+      padding: 40px 32px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hiw-timeline-track-wrap {
+      position: relative;
+      padding: 0 8px;
+    }
+
+    .hiw-timeline-line {
+      position: absolute;
+      top: 4px;
+      left: 8px;
+      right: 8px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .hiw-timeline-nodes {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .hiw-timeline-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hiw-timeline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-cream);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hiw-timeline-node-label {
+      font-size: 0.625rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-cream);
+      text-align: center;
+    }
+
+    .hiw-timeline-node-temp {
+      font-size: 0.75rem;
+      color: rgba(245, 240, 232, 0.45);
+      text-align: center;
+    }
+
+    /* ── Footer CTA ── */
+    .hiw-footer {
+      background: var(--cream);
+      border-top: 1px solid rgba(193, 68, 14, 0.15);
+      padding: 80px 24px 48px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hiw-footer h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 400;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .hiw-footer-sub {
+      font-size: 0.875rem;
+      color: var(--text-mid);
+      margin-bottom: 32px;
+    }
+
+    .hiw-cta-btn {
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .hiw-cta-btn:hover { background: var(--terracotta-lt); }
+    .hiw-cta-btn:active { transform: scale(0.98); }
+
+    .hiw-footer-divider {
+      width: 100%;
+      max-width: 480px;
+      height: 1px;
+      background: rgba(193, 68, 14, 0.1);
+      margin: 48px 0 32px;
+    }
+
+    .hiw-footer-brand {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      color: var(--terracotta);
+      margin-bottom: 20px;
+    }
+
+    .hiw-footer-links {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 16px;
+    }
+
+    .hiw-footer-links a {
+      font-size: 0.625rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .hiw-footer-links a:hover { color: var(--terracotta); }
+
+    .hiw-footer-copy {
+      font-size: 0.625rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-light);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- SVG sprites reused from main app -->
+  <svg style="display: none;" aria-hidden="true">
+    <defs>
+      <symbol id="icon-calculator" viewBox="0 0 24 24">
+        <circle cx="17" cy="17" r="6"/>
+        <circle cx="17" cy="17" r="0.5"/>
+        <path d="M11 11c1-2 5-2 6-1"/>
+        <path d="M11 11l-9-9"/>
+        <path d="M3 2c-1.5 2 0 4 .5 5L11 11"/>
+      </symbol>
+      <symbol id="icon-moon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-brand">Dough <span>Formula</span></div>
+      <span class="nav-brand-divider" aria-hidden="true"></span>
+      <a class="nav-link" href="index.html">
+        <svg class="nav-link-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <use href="#icon-calculator"/>
+        </svg>
+        <span class="nav-link-text">Calculator</span>
+      </a>
+    </div>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <use href="#icon-moon" id="themeIcon"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hiw-hero">
+    <h1>How It Works</h1>
+    <p>A rigorous analytical approach to the science of fermentation, hydration, and the alchemy of grain.</p>
+  </header>
+
+  <main class="hiw-main">
+
+    <!-- Section 1: How to Use -->
+    <section class="hiw-section">
+      <h2 class="hiw-section-title">How to Use the Calculator</h2>
+      <div class="hiw-steps">
+
+        <div class="hiw-step">
+          <span class="hiw-step-num">01</span>
+          <div class="hiw-step-content">
+            <h3>Define Your Base</h3>
+            <p>Select your pizza style and enter the number of balls and target ball weight. The calculator derives total flour weight from these values.</p>
+          </div>
+        </div>
+
+        <div class="hiw-step">
+          <span class="hiw-step-num">02</span>
+          <div class="hiw-step-content">
+            <h3>Select Leavener Type</h3>
+            <p>Choose between instant dry yeast, fresh yeast, or a sourdough starter. Each mode adjusts the fermentation model and which variables are relevant.</p>
+          </div>
+        </div>
+
+        <div class="hiw-step">
+          <span class="hiw-step-num">03</span>
+          <div class="hiw-step-content">
+            <h3>Adjust Variables</h3>
+            <p>Set your room and fridge temperatures, bulk and cold fermentation times, and target bake time. The model recalculates in real time.</p>
+          </div>
+        </div>
+
+        <div class="hiw-step">
+          <span class="hiw-step-num">04</span>
+          <div class="hiw-step-content">
+            <h3>Execute the Formula</h3>
+            <p>The output card shows exact ingredient weights and a backwards-counted bake schedule, telling you precisely when to start each stage.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 2: Baker's Percentages -->
+    <section class="hiw-section">
+      <div class="hiw-grid wide-left">
+
+        <div>
+          <h2 class="hiw-section-title">Baker's Percentages</h2>
+          <div class="hiw-body">
+            <p>At the heart of every great loaf is a mathematical constant. Baker's percentages define every ingredient as a ratio of total flour weight — the one fixed reference point in any formula.</p>
+            <p>This system eliminates the ambiguity of volume measurements and lets you scale a recipe without touching its underlying structure. Doubling a batch means doubling the flour; every other ingredient follows automatically.</p>
+          </div>
+        </div>
+
+        <div class="hiw-dark-card">
+          <span class="hiw-dark-card-label">Scientific Breakdown — Neapolitan Standard</span>
+          <div class="hiw-pct-table">
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Flour</span>
+              <span class="hiw-pct-val">100%</span>
+            </div>
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Water (Hydration)</span>
+              <span class="hiw-pct-val">65%</span>
+            </div>
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Sea Salt</span>
+              <span class="hiw-pct-val">3%</span>
+            </div>
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Yeast (IDY)</span>
+              <span class="hiw-pct-val">0.1%</span>
+            </div>
+          </div>
+          <span class="hiw-pct-source">Reference: AVPN International Standard (Mod. 2024)</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 3: Yeast vs Sourdough -->
+    <section class="hiw-section">
+      <div class="hiw-dark-card" style="padding: 0;">
+        <div class="hiw-comparison">
+
+          <div class="hiw-comparison-col">
+            <span class="hiw-comparison-icon">⚡</span>
+            <h3>Commercial Yeast</h3>
+            <p>Designed for the clinical baker. Provides an aggressive, predictable lift that focuses on structural integrity and speed. Two variants: instant dry (IDY) and fresh cake yeast, which is roughly three times the weight for the same activity.</p>
+            <ul>
+              <li>• Predictable Fermentation Window</li>
+              <li>• High CO₂ Retention</li>
+              <li>• Neutral pH Profile</li>
+            </ul>
+          </div>
+
+          <div class="hiw-comparison-col">
+            <span class="hiw-comparison-icon">🌿</span>
+            <h3>Sourdough (Wild)</h3>
+            <p>The artisan's signature. A wild symbiotic culture of yeast and lactic acid bacteria produces complex acidity, extended shelf life, and improved nutrient bioavailability. Timing depends on starter health, hydration, and feed ratio.</p>
+            <ul>
+              <li>• Enhanced Flavour Complexity</li>
+              <li>• Natural Preservatives</li>
+              <li>• Slower Biological Process</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Time and Temperature -->
+    <section class="hiw-section">
+      <div class="hiw-grid wide-right">
+
+        <div class="hiw-dark-card hiw-chart-wrap">
+          <span class="hiw-chart-title">Enzymatic Activity Curve</span>
+          <div class="hiw-chart">
+            <svg viewBox="0 0 100 40" preserveAspectRatio="none" fill="none">
+              <path d="M 0 40 Q 30 0 50 8 T 100 40" stroke="#C1440E" stroke-width="0.75"/>
+              <circle cx="50" cy="8" r="1.5" fill="#C1440E"/>
+            </svg>
+            <span class="hiw-chart-peak">Peak Activity (26°C)</span>
+            <span class="hiw-chart-axis left">4°C (Cold)</span>
+            <span class="hiw-chart-axis right">45°C (Death)</span>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="hiw-section-title">Time and Temperature</h2>
+          <div class="hiw-body">
+            <p>The invisible hand of the baker is temperature. Yeast activity is not linear — it follows a curve shaped by the thermal energy within the dough mass and its environment.</p>
+            <p>Below 4°C fermentation stalls almost entirely, which is why a cold fridge rise can extend a schedule from hours to days. Above ~40°C yeast begins to die. Peak activity sits around 26–28°C for <em>Saccharomyces cerevisiae</em>.</p>
+            <p>The calculator uses lookup tables calibrated at multiple temperature and time intervals to interpolate the precise yeast activity for your conditions.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 5: The Fermentation Model -->
+    <section class="hiw-section">
+      <div class="hiw-grid">
+
+        <div>
+          <h2 class="hiw-section-title">The Fermentation Model</h2>
+          <p class="hiw-quote">"The algorithm uses non-linear activity tables built from empirical fermentation data, simulating the biological progression of yeast within specific environmental conditions — then works backwards from your target bake time to give you a precise schedule."</p>
+          <div class="hiw-stats">
+            <div>
+              <div class="hiw-stat-val">4 tables</div>
+              <div class="hiw-stat-label">Calibration Data</div>
+            </div>
+            <div>
+              <div class="hiw-stat-val">300ms</div>
+              <div class="hiw-stat-label">Recalculation</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hiw-dark-card hiw-timeline-wrap">
+          <span class="hiw-dark-card-label">Fermentation Timeline</span>
+          <div class="hiw-timeline-track-wrap">
+            <div class="hiw-timeline-line"></div>
+            <div class="hiw-timeline-nodes">
+              <div class="hiw-timeline-node">
+                <div class="hiw-timeline-dot"></div>
+                <div class="hiw-timeline-node-label">Mix</div>
+                <div class="hiw-timeline-node-temp">24°C</div>
+              </div>
+              <div class="hiw-timeline-node">
+                <div class="hiw-timeline-dot"></div>
+                <div class="hiw-timeline-node-label">Bulk</div>
+                <div class="hiw-timeline-node-temp">21°C</div>
+              </div>
+              <div class="hiw-timeline-node">
+                <div class="hiw-timeline-dot"></div>
+                <div class="hiw-timeline-node-label">Proof</div>
+                <div class="hiw-timeline-node-temp">4°C</div>
+              </div>
+              <div class="hiw-timeline-node">
+                <div class="hiw-timeline-dot"></div>
+                <div class="hiw-timeline-node-label">Bake</div>
+                <div class="hiw-timeline-node-temp">300°C</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer CTA -->
+  <footer class="hiw-footer">
+    <h2>Ready to calculate your formula?</h2>
+    <p class="hiw-footer-sub">Apply these principles to your next bake.</p>
+    <a class="hiw-cta-btn" href="index.html">
+      Open the Calculator
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 7h8M7 3l4 4-4 4"/>
+      </svg>
+    </a>
+    <div class="hiw-footer-divider"></div>
+    <div class="hiw-footer-brand">Dough Formula</div>
+    <div class="hiw-footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Research</a>
+    </div>
+    <p class="hiw-footer-copy">© 2024 Dough Formula</p>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('themeToggle');
+      var icon = document.getElementById('themeIcon');
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        icon.setAttribute('href', theme === 'dark' ? '#icon-sun' : '#icon-moon');
+        toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+
+      applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
+
+      toggle.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+      });
+    }());
+  </script>
+
+</body>
+</html>

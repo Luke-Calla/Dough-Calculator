@@ -82,10 +82,21 @@ body {
   background-color: var(--charcoal);
   padding: 0 24px;
   height: 56px;
-  /* flexbox: makes children sit side by side and vertically
-     centred — the standard approach for nav bars */
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .nav-brand {
@@ -99,30 +110,116 @@ body {
   color: var(--terracotta);
 }
 
-.theme-toggle {
-  margin-left: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-cream);
-  padding: 6px;
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.7;
-  transition: opacity 0.15s;
-  min-width: 44px;
-  min-height: 44px;
+.nav-brand-divider {
+  display: block;
+  width: 1px;
+  height: 16px;
+  background: var(--text-cream);
+  opacity: 0.2;
+  flex-shrink: 0;
 }
 
+/* Shared ghost-button baseline for all nav interactive elements */
+.nav-link,
+.unit-toggle button,
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--text-cream);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 400;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  text-decoration: none;
+  opacity: 0.6;
+  transition: background 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.nav-link {
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nav-link:hover,
+.unit-toggle button:hover,
 .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
   opacity: 1;
 }
 
+.nav-link:focus-visible,
+.unit-toggle button:focus-visible,
 .theme-toggle:focus-visible {
   outline: 2px solid var(--terracotta);
   outline-offset: 2px;
+}
+
+/* How It Works — icon hidden by default, text shown */
+.nav-link-icon { display: none; }
+.nav-link-text { display: inline; }
+
+/* Unit toggle — text-based segmented control, no pill border */
+.unit-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.unit-toggle button {
+  padding: 0 10px;
+  letter-spacing: 0.02em;
+}
+
+#btnImperial {
+  border-radius: 0 4px 4px 0;
+  position: relative;
+}
+
+#btnImperial::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+#btnMetric {
+  border-radius: 4px 0 0 4px;
+}
+
+.unit-toggle button.active {
+  font-weight: 600;
+  opacity: 1;
+}
+
+.unit-toggle button.active span {
+  text-decoration: underline;
+  text-decoration-color: var(--terracotta);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+/* Theme toggle — icon button, tighter horizontal padding */
+.theme-toggle {
+  padding: 0 8px;
+  min-width: 44px;
+  justify-content: center;
+}
+
+/* Mobile: swap How It Works text for the info icon */
+@media (max-width: 639px) {
+  .nav-link-text { display: none; }
+  .nav-link-icon { display: block; }
+  .nav-link { padding: 0 8px; min-width: 44px; justify-content: center; }
 }
 
 /* ========================================================
@@ -351,7 +448,12 @@ body {
   justify-content: space-between;
   align-items: center;
   min-height: 22px;
+}
+
+.tooltip-wrap {
   position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ========================================================
@@ -421,7 +523,7 @@ body {
 .tooltip-popover {
   position: absolute;
   top: calc(100% + 4px);
-  left: 0;
+  right: 0;
   z-index: 20;
   background: var(--cream-dark);
   border: 1px solid var(--border);
@@ -430,7 +532,7 @@ body {
   font-size: 0.8rem;
   line-height: 1.5;
   color: var(--text-dark);
-  max-width: 280px;
+  width: 260px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
 }
 
