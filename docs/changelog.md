@@ -6,6 +6,26 @@ Compressed history of shipped user-visible changes and notable fixes.
 
 Read this file when historical context matters, such as tracing when behavior changed or understanding why an older implementation exists. Do not use it as the current source of truth for behavior.
 
+## 2026-04-20 (session 2)
+
+- Replaced the leavener % hint popup ("Suggested for your schedule: X%") with an **Auto / Custom ×** badge in the field label row, matching the warm-up badge pattern
+- Tooltip icon on the leavener % field moved to the right side of the label row, grouped just left of the badge, using a `.field-label-right` flex wrapper
+- Tooltip icon now stays dark while its popover is open via `[aria-expanded="true"]` CSS selector
+- Fixed tooltip on mobile: hover and blur listeners are now desktop-only; touch devices use click-to-toggle only, preventing the icon from flashing grey immediately after a tap
+- Replaced the fixed 300ms mobile keyboard scroll delay with a `visualViewport` resize listener so the focused field scrolls into view only after the keyboard has fully appeared; 500ms timeout retained as a fallback for browsers without the API
+- Fixed tooltip icon bottom being clipped when selected by setting `overflow: visible; display: block` on `.tooltip-btn svg`
+
+## 2026-04-20
+
+- Fixed nav bar wrapping on mobile by reducing padding, brand font size, hiding the divider, and shrinking unit toggle buttons at `max-width: 639px`
+- Made the nav bar sticky so it pins to the top of the page on scroll
+- Fixed warm-up time stepper rendering too short on mobile by wrapping it in a `bake-time-row` flex container, matching the structure of the bake time field
+- Raised the field-grid single-column collapse breakpoint from `480px` to `640px`, fixing cramped two-column layouts on mid-size phones
+- Replaced the pizza cutter icon on `how-it-works.html` nav link with a proper calculator icon
+- Leavener % override is now cleared when switching between leavener types — prevents stale IDY/fresh/sourdough overrides carrying across
+- Fixed `is-preset` class not being applied when switching into sourdough mode with a cleared override
+- Fresh yeast % is now displayed at the correct baker's percentage (`yeastPct × 3`); IDY-equivalent is still stored internally and used for all calculations
+
 ## 2026-04-19 (session 3)
 
 - Shipped `how-it-works.html`, a standalone knowledge page covering baker's percentages, yeast vs sourdough, time/temperature, and the fermentation model

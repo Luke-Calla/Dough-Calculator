@@ -286,21 +286,23 @@
             <div class="field" id="leavenerPctField">
               <div class="field-label-row">
                 <label for="starterPct" id="leavenerPctLabel">Yeast IDY (%)</label>
-                <span class="tooltip-wrap">
-                  <button type="button" class="tooltip-btn" id="leavenerTooltipBtn" aria-label="About Starter %" aria-expanded="false" hidden>
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <use href="#icon-info"/>
-                    </svg>
-                  </button>
-                  <div class="tooltip-popover" role="tooltip" hidden>
-                    How much starter to use as a percentage of total flour. More starter means a faster rise and less time needed.
-                  </div>
-                </span>
+                <div class="field-label-right">
+                  <span class="tooltip-wrap">
+                    <button type="button" class="tooltip-btn" id="leavenerTooltipBtn" aria-label="About Starter %" aria-expanded="false" hidden>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <use href="#icon-info"/>
+                      </svg>
+                    </button>
+                    <div class="tooltip-popover" role="tooltip" hidden>
+                      How much starter to use as a percentage of total flour. More starter means a faster rise and less time needed.
+                    </div>
+                  </span>
+                  <div class="badge preset" id="starterPctBadge">Auto</div>
+                </div>
               </div>
               <div class="input-wrap">
                 <input type="number" id="starterPct" class="is-preset" min="0.001" max="5" step="0.001" autocomplete="off">
               </div>
-              <p class="starter-pct-hint" id="starterPctHint" hidden>Suggested for your schedule: <span id="starterPctHintValue"></span>%</p>
             </div>
           </div>
 
@@ -450,18 +452,20 @@
                 <label>Warm-up Time</label>
                 <div class="badge preset" id="warmUpBadge">Auto</div>
               </div>
-              <div class="hour-stepper">
-                <button data-warmup-step="-1" aria-label="Decrease warm-up">
-                  <svg width="8" height="8" fill="none" stroke="currentColor">
-                    <use href="#icon-chevron-left"/>
-                  </svg>
-                </button>
-                <span class="hour-stepper-display" id="warmUpDisplay">-- min</span>
-                <button data-warmup-step="1" aria-label="Increase warm-up">
-                  <svg width="8" height="8" fill="none" stroke="currentColor">
-                    <use href="#icon-chevron-right"/>
-                  </svg>
-                </button>
+              <div class="bake-time-row">
+                <div class="hour-stepper">
+                  <button data-warmup-step="-1" aria-label="Decrease warm-up">
+                    <svg width="8" height="8" fill="none" stroke="currentColor">
+                      <use href="#icon-chevron-left"/>
+                    </svg>
+                  </button>
+                  <span class="hour-stepper-display" id="warmUpDisplay">-- min</span>
+                  <button data-warmup-step="1" aria-label="Increase warm-up">
+                    <svg width="8" height="8" fill="none" stroke="currentColor">
+                      <use href="#icon-chevron-right"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -53,11 +53,10 @@ Read this file after meaningful UI, logic, or interaction changes. Use it to ver
 
 ## Sourdough Checks
 
-- Starter % auto-suggests when no override is active
-- Changing room time, fridge time, room temp, or fridge temp updates the suggestion
+- Starter % shows **Auto** badge when using the suggestion; badge updates as fermentation inputs change
+- Overriding starter % switches badge to **Custom ×** and freezes the value
+- Clicking **Custom ×** badge clears the override and restores the suggestion
 - Changing feed ratio changes feed timing behavior
-- Overriding starter % switches to custom behavior and stops auto-updating
-- Clearing the custom override restores the suggestion
 - Starter detail output matches the displayed starter logic
 
 ## Warm-Up Checks
@@ -79,8 +78,9 @@ Read this file after meaningful UI, logic, or interaction changes. Use it to ver
 
 - Only one tooltip opens at a time
 - Desktop hover/click behavior works
-- Mobile tap behavior works
+- Mobile tap behavior works — tooltip opens on tap, stays open, icon remains dark
 - Clicking or tapping outside closes the active tooltip
+- Tooltip icon is dark while its popover is open; reverts to grey when closed
 
 ## Layout Checks
 

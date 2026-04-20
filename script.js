@@ -228,11 +228,18 @@ function getLeavenerPctConfig() {
     : YEAST_PCT_CONFIG;
 }
 
+// Fresh yeast is displayed at 3× the IDY-equivalent stored in state.
+// All other leavener types use a multiplier of 1.
+function yeastDisplayMultiplier() {
+  return state.leavener === 'fresh' ? 3.0 : 1.0;
+}
+
 function getSuggestedLeavenerPctDisplay() {
   if (state.leavener === 'sourdough') {
     return Math.round(state.sourdough.starterPctSuggested * 100);
   }
-  return parseFloat((state.yeast.pctSuggested * 100).toFixed(YEAST_PCT_CONFIG.decimals));
+  const m = yeastDisplayMultiplier();
+  return parseFloat((state.yeast.pctSuggested * 100 * m).toFixed(YEAST_PCT_CONFIG.decimals));
 }
 
 function getActiveLeavenerPctDisplay() {
@@ -241,9 +248,10 @@ function getActiveLeavenerPctDisplay() {
       ? Math.round(state.sourdough.starterPctOverride * 100)
       : Math.round(state.sourdough.starterPctSuggested * 100);
   }
+  const m = yeastDisplayMultiplier();
   return state.yeast.pctOverride !== null
-    ? parseFloat((state.yeast.pctOverride * 100).toFixed(YEAST_PCT_CONFIG.decimals))
-    : parseFloat((state.yeast.pctSuggested * 100).toFixed(YEAST_PCT_CONFIG.decimals));
+    ? parseFloat((state.yeast.pctOverride * 100 * m).toFixed(YEAST_PCT_CONFIG.decimals))
+    : parseFloat((state.yeast.pctSuggested * 100 * m).toFixed(YEAST_PCT_CONFIG.decimals));
 }
 
 // Clears the leavener % override and reverts to the suggested value.
@@ -632,29 +640,39 @@ function updateOutputs() {
   // Recompute suggested leavener % from current inputs and update the field.
   // Must run before calcIngredients() so state reflects the latest suggestion.
   const leavenerInput = document.getElementById('starterPct');
-  const leavenerHint  = document.getElementById('starterPctHint');
+  const starterPctBadge = document.getElementById('starterPctBadge');
   if (state.leavener === 'sourdough') {
     const { roomTemp, roomTime, fridgeTime, fridgeTemp } = state.inputs;
     const suggested = calcSuggestedStarterPct(roomTemp, roomTime, fridgeTime, fridgeTemp);
     state.sourdough.starterPctSuggested = suggested;
     if (state.sourdough.starterPctOverride === null) {
       leavenerInput.value = Math.round(suggested * 100);
-      leavenerHint.hidden = true;
+      leavenerInput.classList.add('is-preset');
+      starterPctBadge.className = 'badge preset';
+      starterPctBadge.textContent = 'Auto';
+      starterPctBadge.onclick = null;
     } else {
-      document.getElementById('starterPctHintValue').textContent = Math.round(suggested * 100);
-      leavenerHint.hidden = false;
+      leavenerInput.classList.remove('is-preset');
+      starterPctBadge.className = 'badge custom';
+      starterPctBadge.textContent = 'Custom ×';
+      starterPctBadge.onclick = clearStarterOverride;
     }
   } else {
     const { roomTemp, roomTime, fridgeTime, fridgeTemp } = state.inputs;
     const suggested = calcYeastPct(roomTemp, roomTime, fridgeTime, fridgeTemp);
     state.yeast.pctSuggested = suggested;
+    const m = yeastDisplayMultiplier();
     if (state.yeast.pctOverride === null) {
-      leavenerInput.value = parseFloat((suggested * 100).toFixed(3));
+      leavenerInput.value = parseFloat((suggested * 100 * m).toFixed(3));
       leavenerInput.classList.add('is-preset');
-      leavenerHint.hidden = true;
+      starterPctBadge.className = 'badge preset';
+      starterPctBadge.textContent = 'Auto';
+      starterPctBadge.onclick = null;
     } else {
-      document.getElementById('starterPctHintValue').textContent = parseFloat((suggested * 100).toFixed(3));
-      leavenerHint.hidden = false;
+      leavenerInput.classList.remove('is-preset');
+      starterPctBadge.className = 'badge custom';
+      starterPctBadge.textContent = 'Custom ×';
+      starterPctBadge.onclick = clearStarterOverride;
     }
   }
 
@@ -879,6 +897,7 @@ function setLeavener(type) {
     input.min  = STARTER_PCT_CONFIG.min;
     input.max  = STARTER_PCT_CONFIG.max;
     input.step = STARTER_PCT_CONFIG.step;
+    state.yeast.pctOverride = null;
   } else {
     label.textContent = type === 'idy' ? 'Yeast IDY (%)' : 'Yeast Fresh (%)';
     tooltipBtn.hidden = true;
@@ -888,6 +907,8 @@ function setLeavener(type) {
     input.min  = YEAST_PCT_CONFIG.min;
     input.max  = YEAST_PCT_CONFIG.max;
     input.step = YEAST_PCT_CONFIG.step;
+    state.sourdough.starterPctOverride = null;
+    state.yeast.pctOverride = null;
   }
 
   updateOutputs();
@@ -1094,11 +1115,12 @@ document.getElementById('feedRatio').addEventListener('change', function () {
         input.classList.remove('is-preset');
       }
     } else {
+      const m = yeastDisplayMultiplier();
       if (clamped === suggested) {
         state.yeast.pctOverride = null;
         input.classList.add('is-preset');
       } else {
-        state.yeast.pctOverride = clamped / 100;
+        state.yeast.pctOverride = clamped / 100 / m;
         input.classList.remove('is-preset');
       }
     }
@@ -1119,15 +1141,13 @@ document.getElementById('feedRatio').addEventListener('change', function () {
         }
       } else {
         if (state.yeast.pctOverride !== null) {
-          state.yeast.pctOverride = rounded / 100;
+          state.yeast.pctOverride = rounded / 100 / yeastDisplayMultiplier();
         }
       }
     }
     calculate();
   });
 
-  // Clicking the hint reverts to the auto-calculated suggestion
-  document.getElementById('starterPctHint').addEventListener('click', clearStarterOverride);
 })();
 
 // starterHydration — simple clamped input with blur restore
@@ -1217,42 +1237,41 @@ setLeavener(state.leavener);
     }
   });
 
+  var isTouchDevice = window.matchMedia('(hover: none)').matches;
+
   document.querySelectorAll('.tooltip-btn').forEach(function (btn) {
     var closeTimer = null;
-    var mouseEnterTime = 0;
 
-    // Hover open
-    btn.addEventListener('mouseenter', function () {
-      clearTimeout(closeTimer);
-      mouseEnterTime = Date.now();
-      openTooltip(btn);
-    });
-
-    // Hover close — short delay so cursor can travel into the popover
-    btn.addEventListener('mouseleave', function () {
-      closeTimer = setTimeout(function () { closeTooltip(btn); }, 150);
-    });
-
-    // Keep open while cursor is inside the popover
-    var popover = getPopover(btn);
-    if (popover) {
-      popover.addEventListener('mouseenter', function () {
+    if (!isTouchDevice) {
+      // Hover open/close — desktop only
+      btn.addEventListener('mouseenter', function () {
         clearTimeout(closeTimer);
+        openTooltip(btn);
       });
-      popover.addEventListener('mouseleave', function () {
+      btn.addEventListener('mouseleave', function () {
+        closeTimer = setTimeout(function () { closeTooltip(btn); }, 150);
+      });
+
+      // Keep open while cursor is inside the popover
+      var popover = getPopover(btn);
+      if (popover) {
+        popover.addEventListener('mouseenter', function () { clearTimeout(closeTimer); });
+        popover.addEventListener('mouseleave', function () {
+          closeTimer = setTimeout(function () { closeTooltip(btn); }, 150);
+        });
+      }
+
+      // Blur closes the tooltip when focus leaves the button (desktop only)
+      btn.addEventListener('blur', function () {
         closeTimer = setTimeout(function () { closeTooltip(btn); }, 150);
       });
     }
 
     // Click/tap toggle
     btn.addEventListener('click', function (e) {
-      e.stopPropagation(); // prevent document click handler from immediately closing
+      e.stopPropagation();
       var popover = getPopover(btn);
       if (!popover) return;
-      // On mobile, a tap fires mouseenter then click in rapid succession.
-      // If mouseenter just opened the tooltip (< 100ms ago), skip the toggle
-      // so the synthesised click doesn't immediately close it again.
-      if (!popover.hidden && Date.now() - mouseEnterTime < 100) return;
       if (popover.hidden) {
         openTooltip(btn);
       } else {
@@ -1263,11 +1282,6 @@ setLeavener(state.leavener);
     // Escape key dismisses the tooltip and returns focus to the button
     btn.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { closeTooltip(btn); btn.focus(); }
-    });
-
-    // Blur closes the tooltip when focus leaves the button
-    btn.addEventListener('blur', function () {
-      closeTimer = setTimeout(function () { closeTooltip(btn); }, 150);
     });
   });
 }());
@@ -1371,20 +1385,38 @@ initTheme();
 
 /* ========================================================
    MOBILE KEYBOARD SCROLL
-   When the soft keyboard opens it shrinks the viewport and
-   can hide the focused field. We wait 300ms for the keyboard
-   animation to finish, then scroll the field to the centre
-   of whatever visible space remains.
+   When the soft keyboard opens it shrinks the visual viewport.
+   We listen for visualViewport resize (fires when keyboard
+   finishes appearing) then scroll the focused field into view.
+   Falls back to a 500ms timeout on browsers without the API.
 ======================================================== */
 (function () {
-  function onFocus(e) {
-    var el = e.target;
-    if (!el.matches('input, select')) return;
-    setTimeout(function () {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
+  if (!window.matchMedia('(hover: none)').matches) return;
+
+  var focused = null;
+
+  document.addEventListener('focusin', function (e) {
+    if (e.target.matches('input, select')) focused = e.target;
+  });
+  document.addEventListener('focusout', function () {
+    focused = null;
+  });
+
+  function scrollFocused() {
+    if (focused) focused.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
-  if (window.matchMedia('(hover: none)').matches) {
-    document.addEventListener('focusin', onFocus);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function () {
+      setTimeout(scrollFocused, 50);
+    });
+  } else {
+    document.addEventListener('focusin', function (e) {
+      if (!e.target.matches('input, select')) return;
+      var el = e.target;
+      setTimeout(function () {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 500);
+    });
   }
 }());

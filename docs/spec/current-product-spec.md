@@ -91,7 +91,7 @@ Shown only in sourdough mode.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| Starter % | Number | Auto-suggested | Range 5-25; preset/custom override behavior |
+| Starter % | Number | Auto-suggested | Range 5-25; shows **Auto** badge when using suggested value, **Custom ×** badge when overridden; ×badge click resets to suggestion |
 | Starter Hydration % | Number | 100 | Range 50-125; affects peak timing only |
 | Feed Ratio | Selector | 1:2:2 | Options: `1:1:1`, `1:2:2`, `1:3:3`, `1:4:4`, `1:5:5` |
 
@@ -149,6 +149,7 @@ Shown only in sourdough mode.
 - Clearing a preset-capable input and blurring restores its effective value
 - Style changes clear hydration, salt, oil, sugar, and leavener-related overrides
 - Style changes preserve the intended user-owned fields such as pizza count and ball-weight override
+- Switching leavener type (IDY / fresh / sourdough) clears the previous leavener's % override — no stale value carries across
 
 ### Live Input Behavior
 
@@ -163,16 +164,21 @@ Current blur precision:
 - 1 d.p.: hydration, salt, oil, sugar, starter %
 - 3 d.p.: yeast %
 
+Fresh yeast % display: the field shows `yeastPct × 3` when in fresh mode so the value reflects a true fresh-yeast baker's percentage. Internal state (`state.yeast.pctOverride`) always stores the IDY-equivalent; the ×3 conversion is applied only at the display and input boundaries.
+
 ### Tooltips
 
 - Only one tooltip open at a time
-- Desktop supports hover and click
-- Mobile supports tap
-- Escape, blur, or outside interaction closes the active tooltip
+- Desktop: hover opens, mouseleave/blur closes (with 150ms delay), click toggles
+- Mobile (touch-only): click/tap toggles only — hover and blur listeners are not registered on touch devices
+- Escape or outside click/tap closes the active tooltip
+- The tooltip icon remains dark (`color: var(--text-mid)`) while its popover is open, via `[aria-expanded="true"]` CSS selector
+- The leavener % field places the tooltip icon to the right of the label, immediately left of the Auto/Custom badge
 
 ### Mobile Keyboard Handling
 
-- On touch-only devices, focusing an input or select triggers delayed `scrollIntoView`
+- On touch-only devices, focusing an input or select triggers a `scrollIntoView` call once the soft keyboard has finished appearing
+- Uses `visualViewport` resize event (fires when keyboard settles) with a 50ms settle delay; falls back to a 500ms fixed delay on browsers without the API
 - Desktop behavior is unaffected
 
 ## Layout And Branding
@@ -191,6 +197,8 @@ Current blur precision:
 - `nav-left`: brand, divider, page link
 - `nav-right`: unit toggle, theme toggle
 - Shared ghost-button baseline across nav controls
+- Nav is `position: sticky; top: 0` — stays pinned on scroll
+- On mobile (`max-width: 639px`): padding reduced, brand font shrunk, divider hidden, unit toggle buttons compact, page link collapses to icon only
 - `how-it-works.html` mirrors the same nav structure and theme behavior
 
 ## Known Limitations

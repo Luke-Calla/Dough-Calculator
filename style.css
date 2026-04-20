@@ -85,6 +85,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .nav-left {
@@ -340,8 +343,8 @@ body {
   grid-template-columns: 1fr;
 }
 
-/* Inner grid collapses to single column on small phones */
-@media (max-width: 480px) {
+/* Inner grid collapses to single column on mobile */
+@media (max-width: 640px) {
   .field-grid {
     grid-template-columns: 1fr;
   }
@@ -461,6 +464,12 @@ body {
   align-items: center;
 }
 
+.field-label-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* ========================================================
    PRESET / CUSTOM x BADGES
    ========================================================
@@ -521,8 +530,14 @@ body {
   display: none;
 }
 
-.tooltip-btn:hover {
+.tooltip-btn:hover,
+.tooltip-btn[aria-expanded="true"] {
   color: var(--text-mid);
+}
+
+.tooltip-btn svg {
+  overflow: visible;
+  display: block;
 }
 
 .tooltip-popover {
