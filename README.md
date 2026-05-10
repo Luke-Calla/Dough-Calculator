@@ -57,3 +57,14 @@ After meaningful UI or logic changes, use `docs/testing/manual-test-checklist.md
 - warm-up auto vs override behavior
 - mobile layout and focused-input usability
 - `how-it-works.html` parity when shared UI changes
+
+## Structural note
+
+The current two-page HTML structure is acceptable for this project and does not need to be split just because the files are around 24-25 KB.
+
+If readability or maintenance becomes painful later, the first cleanup to consider is:
+
+- move the large inline CSS block from `how-it-works.html` into `style.css`
+- review `script.js` for possible modular cleanup before splitting the HTML pages themselves
+
+That work is optional and can be revisited in a focused follow-up pass.
