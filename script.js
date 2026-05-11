@@ -197,6 +197,9 @@ function clamp(val, min, max) {
 function toDisplayWeight(g) {
   return state.units === 'imperial' ? parseFloat((g * 0.035274).toFixed(2)) : g;
 }
+function toBallWeightInputDisplay(g) {
+  return state.units === 'imperial' ? parseFloat((g * 0.035274).toFixed(2)) : Math.round(g);
+}
 function weightUnit() {
   return state.units === 'imperial' ? 'oz' : 'g';
 }
@@ -211,7 +214,7 @@ function fromDisplayTemp(val) {
 }
 // Convert a displayed weight value (oz or g) back to grams for storage in state
 function fromInputWeight(displayVal) {
-  return state.units === 'imperial' ? Math.round(displayVal / 0.035274) : displayVal;
+  return state.units === 'imperial' ? displayVal / 0.035274 : displayVal;
 }
 
 // Returns active starter % as a decimal fraction (e.g. 0.15 = 15%).
@@ -269,7 +272,7 @@ function clearStarterOverride() {
     presetText: 'Auto',
     customText: 'Custom x',
   });
-  calculate();
+  calculateNow();
 }
 
 /*
@@ -286,16 +289,29 @@ function interpolate(table, rawValue, minKey, maxKey) {
   return table[lower] + fraction * (table[upper] - table[lower]);
 }
 
-// Newton's law of cooling: time for covered dough ball to reach 10°C core.
-// h=5 W/m²K (covered, still air), ρ=1100 kg/m³, cp=3500 J/kgK, target=10°C.
-function calcWarmUpMinutes(ballWeight, roomTemp, fridgeTemp) {
-  const TARGET = 10;
-  if (roomTemp <= TARGET || fridgeTemp >= TARGET) return 0;
-  const mass   = ballWeight / 1000;
+// Newton's law of cooling: time for covered dough ball to reach a ready-to-shape core temp.
+// h=5 W/m²K (covered, still air), ρ=1100 kg/m³, cp=3500 J/kgK, baseline ball=240g, target=13°C.
+const WARM_UP_TARGET_TEMP = 13;
+const WARM_UP_BASELINE_BALL_WEIGHT = 240;
+
+function calcThermalTimeConstantMinutes() {
+  const mass = WARM_UP_BASELINE_BALL_WEIGHT / 1000;
   const radius = Math.pow((3 * mass) / (1100 * 4 * Math.PI), 1 / 3);
-  const area   = 4 * Math.PI * radius * radius;
-  const tau    = (mass * 3500) / (5 * area) / 60; // minutes
-  return tau * Math.log((fridgeTemp - roomTemp) / (TARGET - roomTemp));
+  const area = 4 * Math.PI * radius * radius;
+  return (mass * 3500) / (5 * area) / 60;
+}
+
+function calcCoreTempAfterChill(roomTemp, fridgeTemp, fridgeTimeHours) {
+  if (fridgeTimeHours <= 0) return roomTemp;
+  const tau = calcThermalTimeConstantMinutes();
+  const chillMinutes = fridgeTimeHours * 60;
+  return fridgeTemp + (roomTemp - fridgeTemp) * Math.exp(-chillMinutes / tau);
+}
+
+function calcWarmUpMinutesFromCoreTemp(startCoreTemp, roomTemp) {
+  if (roomTemp <= WARM_UP_TARGET_TEMP || startCoreTemp >= WARM_UP_TARGET_TEMP) return 0;
+  const tau = calcThermalTimeConstantMinutes();
+  return tau * Math.log((roomTemp - startCoreTemp) / (roomTemp - WARM_UP_TARGET_TEMP));
 }
 
 // Snap warm-up durations to the quarter-hour grid used by the warm-up controls.
@@ -573,8 +589,7 @@ const TIMELINE_ICON_IDS = {
    Returns array of step objects.
 ========================================================= */
 function calcSchedule(starterWeight = 0) {
-  const { fridgeTime, roomTime, roomTemp, fridgeTemp } = state.inputs;
-  const ballWeight = getValue('ballWeight');
+  const { fridgeTime, roomTime } = state.inputs;
 
   // Convert the hour stepper + AM/PM toggle into minutes from midnight
   const hour = state.bakeHour;
@@ -593,13 +608,12 @@ function calcSchedule(starterWeight = 0) {
 
   let mixMins;
   if (fridgeTime > 0) {
-    const rawWarmUp = calcWarmUpMinutes(ballWeight, roomTemp, fridgeTemp);
-    const warmUpMins = state.warmUpOverride !== null
-      ? state.warmUpOverride
-      : roundWarmUpMinutes(rawWarmUp);
+    const warmUpMins = getEffectiveWarmUpMinutes();
     const pullMins = bakeMinutes - warmUpMins;
-    const warmUpDetail = `Allow to warm before shaping`;
-    steps.unshift({ name: 'Pull from Fridge', time: formatTime(pullMins), day: dayLabel(pullMins), isBake: false, iconKey: 'pullFromFridge', detail: warmUpDetail });
+    if (warmUpMins > 0) {
+      const warmUpDetail = `Allow to warm before shaping`;
+      steps.unshift({ name: 'Pull from Fridge', time: formatTime(pullMins), day: dayLabel(pullMins), isBake: false, iconKey: 'pullFromFridge', detail: warmUpDetail });
+    }
 
     const moveMins = pullMins - (fridgeTime * 60);
     steps.unshift({ name: 'Move to Fridge', time: formatTime(moveMins), day: dayLabel(moveMins), isBake: false, iconKey: 'moveToFridge' });
@@ -654,9 +668,43 @@ function setFieldBadgeState(input, badge, {
 }
 
 function getAutoWarmUpMinutes() {
+  const { fridgeTime, roomTemp, fridgeTemp } = state.inputs;
+  if (fridgeTime <= 0) return 0;
+
+  const achievedCoreTemp = calcCoreTempAfterChill(roomTemp, fridgeTemp, fridgeTime);
   return roundWarmUpMinutes(
-    calcWarmUpMinutes(getValue('ballWeight'), state.inputs.roomTemp, state.inputs.fridgeTemp)
+    calcWarmUpMinutesFromCoreTemp(achievedCoreTemp, roomTemp)
   );
+}
+
+function getWarmUpMaxMinutes() {
+  const { fridgeTime } = state.inputs;
+  if (fridgeTime <= 0) return 0;
+  const fridgeBound = Math.floor((fridgeTime * 60) / 15) * 15;
+  return Math.min(180, fridgeBound);
+}
+
+function normalizeWarmUpOverride() {
+  const autoWarmUp = getAutoWarmUpMinutes();
+  const maxWarmUp = getWarmUpMaxMinutes();
+  if (state.inputs.fridgeTime <= 0 || maxWarmUp <= 0) {
+    state.warmUpOverride = null;
+    return { autoWarmUp, maxWarmUp };
+  }
+
+  if (state.warmUpOverride === null) {
+    return { autoWarmUp, maxWarmUp };
+  }
+
+  const snapped = roundWarmUpMinutes(state.warmUpOverride);
+  const clamped = clamp(snapped, 0, maxWarmUp);
+  state.warmUpOverride = clamped === autoWarmUp ? null : clamped;
+  return { autoWarmUp, maxWarmUp };
+}
+
+function getEffectiveWarmUpMinutes() {
+  const { autoWarmUp } = normalizeWarmUpOverride();
+  return state.warmUpOverride !== null ? state.warmUpOverride : autoWarmUp;
 }
 
 function animateIngredientValues() {
@@ -763,16 +811,32 @@ function syncWarmUpField() {
   if (!warmUpField) return;
 
   const hasFridge = state.inputs.fridgeTime > 0;
+  const warmUpDisplay = document.getElementById('warmUpDisplay');
+  const warmUpBadge = document.getElementById('warmUpBadge');
+  const warmUpRange = hasFridge ? normalizeWarmUpOverride() : { autoWarmUp: 0, maxWarmUp: 0 };
+  const { autoWarmUp, maxWarmUp } = warmUpRange;
+  const effectiveWarmUp = hasFridge
+    ? (state.warmUpOverride !== null ? state.warmUpOverride : autoWarmUp)
+    : 0;
+  const decreaseWarmUpBtn = warmUpField.querySelector('button[data-warmup-step="-1"]');
+  const increaseWarmUpBtn = warmUpField.querySelector('button[data-warmup-step="1"]');
+  if (!hasFridge) {
+    state.warmUpOverride = null;
+    warmUpDisplay.textContent = '-- min';
+    warmUpDisplay.classList.remove('is-auto');
+    setFieldBadgeState(warmUpDisplay, warmUpBadge, {
+      isPreset: true,
+      presetText: 'Auto',
+      customText: 'Custom x',
+    });
+  }
   warmUpField.hidden = !hasFridge;
   if (!hasFridge) return;
 
-  const warmUpDisplay = document.getElementById('warmUpDisplay');
-  const warmUpBadge = document.getElementById('warmUpBadge');
-  const activeWarmUp = state.warmUpOverride !== null
-    ? state.warmUpOverride
-    : getAutoWarmUpMinutes();
+  decreaseWarmUpBtn.disabled = effectiveWarmUp <= 0;
+  increaseWarmUpBtn.disabled = effectiveWarmUp >= maxWarmUp;
 
-  warmUpDisplay.textContent = formatWarmUp(activeWarmUp);
+  warmUpDisplay.textContent = formatWarmUp(effectiveWarmUp);
   warmUpDisplay.classList.toggle('is-auto', state.warmUpOverride === null);
   setFieldBadgeState(warmUpDisplay, warmUpBadge, {
     isPreset: state.warmUpOverride === null,
@@ -780,7 +844,7 @@ function syncWarmUpField() {
     customText: 'Custom x',
     onCustomClick: () => {
       state.warmUpOverride = null;
-      calculate();
+      calculateNow();
     },
   });
 }
@@ -857,7 +921,7 @@ function loadPreset(style) {
       return;
     }
     input.value = field === 'ballWeight'
-      ? toDisplayWeight(state.presetValues[field])
+      ? toBallWeightInputDisplay(state.presetValues[field])
       : state.presetValues[field];
     setFieldBadgeState(input, badge, {
       isPreset: true,
@@ -881,10 +945,14 @@ function onPresetFieldInput(field, value) {
     // Ball weight input is in display units (oz or g); convert to grams for state comparison
     const stateVal = field === 'ballWeight' ? fromInputWeight(numVal) : numVal;
 
-    if (stateVal === state.presetValues[field]) {
+    const matchesPreset = field === 'ballWeight'
+      ? Math.abs(numVal - toBallWeightInputDisplay(state.presetValues[field])) < 0.005
+      : stateVal === state.presetValues[field];
+
+    if (matchesPreset) {
       // Typed value matches the preset — revert to PRESET state
       delete state.userOverrides[field];
-      input.value = field === 'ballWeight' ? toDisplayWeight(state.presetValues[field]) : state.presetValues[field];
+      input.value = field === 'ballWeight' ? toBallWeightInputDisplay(state.presetValues[field]) : state.presetValues[field];
       setFieldBadgeState(input, badge, {
         isPreset: true,
         presetText: 'Preset',
@@ -910,7 +978,7 @@ function clearOverride(field) {
   delete state.userOverrides[field];
   const input = document.getElementById(field);
   input.value = field === 'ballWeight'
-    ? toDisplayWeight(state.presetValues[field])
+    ? toBallWeightInputDisplay(state.presetValues[field])
     : state.presetValues[field];
   const badge = document.getElementById(field + 'Badge');
   setFieldBadgeState(input, badge, {
@@ -918,7 +986,7 @@ function clearOverride(field) {
     presetText: 'Preset',
     customText: 'Custom x',
   });
-  calculate();
+  calculateNow();
 }
 
 function closeLeavenerTooltip() {
@@ -994,7 +1062,7 @@ function setAmPm(value) {
   state.ampm = value;
   document.getElementById('btnAM').classList.toggle('active', value === 'am');
   document.getElementById('btnPM').classList.toggle('active', value === 'pm');
-  calculate();
+  calculateNow();
 }
 
 /* =========================================================
@@ -1007,42 +1075,75 @@ function setAmPm(value) {
 function stepHour(direction) {
   state.bakeHour = ((state.bakeHour - 1 + direction + 12) % 12) + 1;
   document.getElementById('bakeHourDisplay').textContent = state.bakeHour;
-  calculate();
+  calculateNow();
 }
 
 /* =========================================================
    UI: Warm-up stepper
    =========================================================
-   Steps in 30-minute increments, clamped to 30–180 min.
+   Steps in 15-minute increments, clamped to the current 0-to-max range.
    First step sets an override from the current calculated value.
 ========================================================= */
 function stepWarmUp(direction) {
-  const ballWeight = getValue('ballWeight');
-  const { roomTemp, fridgeTemp } = state.inputs;
-  const calculated = roundWarmUpMinutes(calcWarmUpMinutes(ballWeight, roomTemp, fridgeTemp));
-  const current = state.warmUpOverride !== null ? state.warmUpOverride : calculated;
-  const snapped = direction > 0
-    ? Math.floor(current / 15) * 15 + 15
-    : Math.ceil(current / 15) * 15 - 15;
-  state.warmUpOverride = clamp(snapped, 15, 240);
-  calculate();
+  if (state.inputs.fridgeTime <= 0) {
+    state.warmUpOverride = null;
+    return;
+  }
+
+  const { autoWarmUp, maxWarmUp } = normalizeWarmUpOverride();
+  if (maxWarmUp <= 0) {
+    state.warmUpOverride = null;
+    calculateNow();
+    return;
+  }
+
+  if (state.warmUpOverride === null) {
+    const nextCustom = direction > 0
+      ? Math.min(maxWarmUp, autoWarmUp + 15)
+      : Math.max(0, autoWarmUp - 15);
+    if (nextCustom === autoWarmUp) return;
+    state.warmUpOverride = nextCustom;
+    calculateNow();
+    return;
+  }
+
+  const nextWarmUp = clamp(state.warmUpOverride + direction * 15, 0, maxWarmUp);
+  if (nextWarmUp === state.warmUpOverride) return;
+  state.warmUpOverride = nextWarmUp === autoWarmUp ? null : nextWarmUp;
+  calculateNow();
 }
 
 /* =========================================================
-   DEBOUNCE
+   UPDATE SCHEDULING
    =========================================================
-   Wraps updateOutputs so it only fires 300ms after the user
-   stops typing. Prevents recalculating on every keystroke.
+   Text input should wait briefly to avoid noisy re-renders.
+   Discrete actions like button clicks should render instantly.
 ========================================================= */
 function debounce(fn, delay) {
   let timer;
-  return function(...args) {
+
+  function debounced(...args) {
     clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), delay);
+    timer = setTimeout(() => {
+      timer = null;
+      fn.apply(this, args);
+    }, delay);
+  }
+
+  debounced.cancel = function () {
+    clearTimeout(timer);
+    timer = null;
   };
+
+  return debounced;
 }
 
 const calculate = debounce(updateOutputs, 300);
+
+function calculateNow() {
+  calculate.cancel();
+  updateOutputs();
+}
 
 /* =========================================================
    SLIDER SYNC
@@ -1054,18 +1155,36 @@ function syncSlider(sliderId, inputId, stateKey) {
   const slider = document.getElementById(sliderId);
   const input  = document.getElementById(inputId);
 
+  function syncStateValue(nextValue, immediateOnThresholdChange = false) {
+    const previousValue = state.inputs[stateKey];
+    state.inputs[stateKey] = nextValue;
+
+    if (stateKey === 'fridgeTime' && nextValue <= 0) {
+      state.warmUpOverride = null;
+    }
+
+    const crossedWarmUpVisibilityThreshold =
+      stateKey === 'fridgeTime'
+      && ((previousValue <= 0) !== (nextValue <= 0));
+
+    if (immediateOnThresholdChange && crossedWarmUpVisibilityThreshold) {
+      calculateNow();
+      return;
+    }
+
+    calculate();
+  }
+
   slider.addEventListener('input', () => {
     input.value = slider.value;
-    state.inputs[stateKey] = parseFloat(slider.value);
-    calculate();
+    syncStateValue(parseFloat(slider.value), true);
   });
 
   input.addEventListener('input', () => {
     const val = clamp(parseFloat(input.value) || 0,
       parseFloat(slider.min), parseFloat(slider.max));
     slider.value = val;
-    state.inputs[stateKey] = val;
-    calculate();
+    syncStateValue(val, true);
   });
 
   input.addEventListener('blur', () => {
@@ -1075,7 +1194,10 @@ function syncSlider(sliderId, inputId, stateKey) {
     input.value = val;
     slider.value = val;
     state.inputs[stateKey] = val;
-    calculate();
+    if (stateKey === 'fridgeTime' && state.inputs[stateKey] <= 0) {
+      state.warmUpOverride = null;
+    }
+    calculateNow();
   });
 }
 
@@ -1088,7 +1210,7 @@ function syncSlider(sliderId, inputId, stateKey) {
 
 document.getElementById('pizzaStyle').addEventListener('change', function() {
   loadPreset(this.value);
-  calculate();
+  calculateNow();
 });
 
 document.getElementById('numBalls').addEventListener('input', function() {
@@ -1116,17 +1238,20 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
     const raw = parseFloat(this.value);
     if (this.value === '' || isNaN(raw)) {
       this.value = field === 'ballWeight'
-        ? toDisplayWeight(getValue(field))
+        ? toBallWeightInputDisplay(getValue(field))
         : getValue(field);
     } else if (field === 'ballWeight') {
-      const grams = fromInputWeight(raw);
-      this.value = toDisplayWeight(grams);
-      onPresetFieldInput(field, this.value);
+      const normalizedDisplayVal = state.units === 'imperial'
+        ? roundTo(raw, 2)
+        : Math.round(raw);
+      this.value = normalizedDisplayVal;
+      onPresetFieldInput(field, String(normalizedDisplayVal));
     } else {
       const rounded = roundTo(raw, FIELD_DECIMALS[field]);
       this.value = rounded;
       onPresetFieldInput(field, String(rounded));
     }
+    calculateNow();
   });
 });
 
@@ -1140,7 +1265,7 @@ document.getElementById('roomTemp').addEventListener('blur', function() {
   const val = Math.round(clamp(parseFloat(this.value) || min, min, max));
   this.value = val;
   state.inputs.roomTemp = fromDisplayTemp(val);
-  calculate();
+  calculateNow();
 });
 
 document.getElementById('fridgeTemp').addEventListener('input', function() {
@@ -1153,7 +1278,7 @@ document.getElementById('fridgeTemp').addEventListener('blur', function() {
   const val = Math.round(clamp(parseFloat(this.value) || min, min, max));
   this.value = val;
   state.inputs.fridgeTemp = fromDisplayTemp(val);
-  calculate();
+  calculateNow();
 });
 
 // Leavener toggle — all three buttons share the same handler via data-leavener
@@ -1164,7 +1289,7 @@ document.querySelectorAll('.leavener-toggle button').forEach(btn => {
 // Sourdough inputs — read into state.sourdough on change; restore on blank blur
 document.getElementById('feedRatio').addEventListener('change', function () {
   state.sourdough.feedRatio = this.value;
-  calculate();
+  calculateNow();
 });
 
 // Leavener % — typing sets an override; typing back to the suggested value reverts to auto state.
@@ -1218,7 +1343,7 @@ document.getElementById('feedRatio').addEventListener('change', function () {
         }
       }
     }
-    calculate();
+    calculateNow();
   });
 
 })();
@@ -1240,7 +1365,7 @@ document.getElementById('feedRatio').addEventListener('change', function () {
       this.value = rounded;
       state.sourdough.starterHydration = rounded;
     }
-    calculate();
+    calculateNow();
   });
 })();
 
@@ -1389,13 +1514,13 @@ function syncInputDisplayToState() {
   const ballWeightEl = document.getElementById('ballWeight');
   const ballGrams    = getValue('ballWeight');
   if (isImperial) {
-    ballWeightEl.value = toDisplayWeight(ballGrams);
+    ballWeightEl.value = toBallWeightInputDisplay(ballGrams);
     ballWeightEl.min   = BALL_WEIGHT_BOUNDS.imperial.min;
     ballWeightEl.max   = BALL_WEIGHT_BOUNDS.imperial.max;
     ballWeightEl.step  = BALL_WEIGHT_BOUNDS.imperial.step;
     document.getElementById('labelBallWeight').textContent = 'Ball Weight (oz)';
   } else {
-    ballWeightEl.value = ballGrams;
+    ballWeightEl.value = toBallWeightInputDisplay(ballGrams);
     ballWeightEl.min   = BALL_WEIGHT_BOUNDS.metric.min;
     ballWeightEl.max   = BALL_WEIGHT_BOUNDS.metric.max;
     ballWeightEl.step  = BALL_WEIGHT_BOUNDS.metric.step;

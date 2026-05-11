@@ -45,6 +45,7 @@ Provide a public pizza dough calculator that preserves the spreadsheet model whi
 - IDY, fresh yeast, and sourdough modes
 - Sourdough starter percentage suggestion with user override
 - Responsive layout: stacked on mobile, two columns on desktop
+- Calculator page explainer section with feature cards, CTA, and FAQ
 - Bake schedule with relative day labels
 - Dynamic warm-up timing with optional manual override
 - Dynamic overproof advisory
@@ -83,7 +84,7 @@ Provide a public pizza dough calculator that preserves the spreadsheet model whi
 | Room Temp | Number | 22 C | Range 14-35 C, displayed in C or F |
 | Fridge Temp | Number | 4 C | Range 4-8 C, displayed in C or F |
 | Target Bake Time | Hour stepper + AM/PM | 7 PM | Schedule anchor |
-| Warm-up Time | Auto + override | Auto | Visible only when fridge time > 0 |
+| Warm-up Time | Auto + override | Auto | Visible whenever fridge time > 0, including `Auto 0 min` |
 
 ### Sourdough Starter
 
@@ -117,18 +118,19 @@ Shown only in sourdough mode.
 ### Schedule Output
 
 - Room-only fermentation: `Mix Dough`, `Bake`
-- Cold fermentation: `Mix Dough`, `Move to Fridge`, `Pull from Fridge`, `Bake`
+- Cold fermentation: `Mix Dough`, `Move to Fridge`, optional `Pull from Fridge`, `Bake`
 - Sourdough adds `Feed Starter` before mixing
 - `Feed Starter` time is rounded to the nearest 30 minutes for display
 - Relative day labels use `Bake day`, `Day before`, or `X days before`
 
 ### Warm-Up Model
 
-- Warm-up time is based on Newton's law of cooling
-- Inputs are ball weight, fridge temperature, and room temperature
-- Assumptions: covered dough, heat transfer coefficient `h = 5 W/m^2K`, target dough temperature `10 C`
-- Auto-calculated warm-up is snapped to a 15-minute grid
-- User can override warm-up manually
+- Warm-up time uses a Newton-style thermal model
+- Dough is assumed to enter the fridge at room temperature, then chill toward fridge temperature over the selected fridge time
+- Inputs are fridge time, fridge temperature, and room temperature
+- Assumptions: covered dough, heat transfer coefficient `h = 5 W/m^2K`, fixed 240 g baseline calibration, target dough temperature `13 C`
+- Auto-calculated warm-up is snapped to a 15-minute grid and can validly be `0 min`
+- Manual warm-up can step above or below auto in 15-minute increments, but it is capped at `min(180 min, fridgeTime)`
 
 ### Unit Toggle
 
@@ -150,10 +152,12 @@ Shown only in sourdough mode.
 - Style changes clear hydration, salt, oil, sugar, and leavener-related overrides
 - Style changes preserve the intended user-owned fields such as pizza count and ball-weight override
 - Switching leavener type (IDY / fresh / sourdough) clears the previous leavener's % override — no stale value carries across
+- Warm-up stays visible whenever fridge time is above 0, and any custom warm-up is clamped back into the valid range when fridge time or temperatures change
 
 ### Live Input Behavior
 
-- Recalculate on change with 300ms debounce
+- Noisy free-typing inputs re-render with a 300ms debounce
+- Discrete button, change, and blur-finalized interactions re-render immediately
 - Clamp inputs to valid bounds on blur
 - Round on blur, never mid-type
 - Focus selects the full numeric input value
@@ -187,6 +191,8 @@ Fresh yeast % display: the field shows `yeastPct × 3` when in fresh mode so the
 - Breakpoint at 768px
 - Desktop layout: inputs left, output right
 - Mobile layout: single column, output below inputs
+- `index.html` keeps the calculator in a dedicated top section; below it, a separate explainer section adds feature cards, a `How It Works` CTA, and a short FAQ
+- The explainer section starts with a visual divider so the sticky output card remains tied to the calculator section rather than the lower content
 - Brand name in nav: `Dough Formula`
 - Functional name: `Pizza Dough Calculator`
 - Typography: Playfair Display + Inter
@@ -203,7 +209,7 @@ Fresh yeast % display: the field shows `yeastPct × 3` when in fresh mode so the
 
 ## Known Limitations
 
-- Warm-up timing is model-derived, not experimentally validated
+- Warm-up timing is model-derived, not experimentally validated, and short cold-ferment warm-up estimates remain approximate
 - Starter hydration only lightly adjusts sourdough peak timing and is approximate
 - Overproof thresholds are calibrated estimates, not measured guarantees
 - URL sharing is architecturally ready but not shipped

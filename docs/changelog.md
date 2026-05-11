@@ -6,7 +6,19 @@ Compressed history of shipped user-visible changes and notable fixes.
 
 Read this file when historical context matters, such as tracing when behavior changed or understanding why an older implementation exists. Do not use it as the current source of truth for behavior.
 
+## 2026-05-11
+
+- Expanded `index.html` with a new below-the-calculator explainer area, including feature cards, a `How It Works` CTA, and a short FAQ
+- Split the calculator into its own top section and started the lower content with a visual divider so the sticky output card stays tied to the calculator area
+- Replaced the placeholder calculator subtitle with a practical one-line explanation of what the tool does
+
 ## 2026-04-20 (session 2)
+
+- Warm-up now stays visible whenever fridge time is above zero, including `Auto 0 min`
+- Auto warm-up no longer assumes the dough instantly reaches full fridge temperature; it now estimates achieved chill first, then calculates warm-up from that starting core temperature
+- Warm-up target is now calibrated to `13 C`, and the warm-up curve uses a fixed `240 g` baseline instead of varying by dough-ball weight
+- Manual warm-up now allows headroom above auto, but only up to `min(180 min, fridge time)`; invalid custom values still collapse back into range when fridge time or temperatures change
+- Cold-ferment schedules now omit `Pull from Fridge` when effective warm-up is `0`
 
 - Replaced the leavener % hint popup ("Suggested for your schedule: X%") with an **Auto / Custom ×** badge in the field label row, matching the warm-up badge pattern
 - Tooltip icon on the leavener % field moved to the right side of the label row, grouped just left of the badge, using a `.field-label-right` flex wrapper

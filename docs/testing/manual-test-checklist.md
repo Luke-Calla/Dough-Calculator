@@ -19,6 +19,7 @@ Read this file after meaningful UI, logic, or interaction changes. Use it to ver
 - `index.html` loads without console errors
 - Default fields render with sensible values
 - Output card renders immediately
+- Calculator subtitle reads clearly and the below-the-calculator explainer content renders
 - Theme toggle works
 - Unit toggle works
 
@@ -48,7 +49,7 @@ Read this file after meaningful UI, logic, or interaction changes. Use it to ver
 
 - Total dough and ingredient outputs update after input changes
 - Room-only fermentation shows the correct reduced schedule
-- Cold fermentation shows `Move to Fridge` and `Pull from Fridge`
+- Cold fermentation always shows `Move to Fridge`; `Pull from Fridge` appears only when effective warm-up is above `0`
 - Relative day labels are sensible when times cross midnight
 
 ## Sourdough Checks
@@ -62,9 +63,9 @@ Read this file after meaningful UI, logic, or interaction changes. Use it to ver
 ## Warm-Up Checks
 
 - Warm-up field only appears when fridge time is greater than zero
-- Auto warm-up value updates when ball weight, room temp, or fridge temp changes
+- Auto warm-up value updates when fridge time, room temp, or fridge temp changes
 - Auto warm-up snaps to a 15-minute grid
-- Manual warm-up override persists until reset
+- Manual warm-up override persists until reset unless fridge time or temperatures make it invalid, in which case it clamps back into range
 - Resetting the override restores the current auto-calculated value
 
 ## Units And Formatting
@@ -86,8 +87,18 @@ Read this file after meaningful UI, logic, or interaction changes. Use it to ver
 
 - Desktop layout remains two-column at and above the desktop breakpoint
 - Mobile layout stacks cleanly and remains readable
+- Sticky output card stays visually tied to the calculator section and does not keep tracking through the lower explainer content
+- Divider between the calculator and the lower explainer content is visible and intentional
+- Feature cards, CTA banner, and FAQ remain readable and well-spaced on desktop and mobile
 - No major overflow or clipped controls
 - Focused inputs remain visible on touch devices with the soft keyboard open
+
+## Calculator Explainer Checks
+
+- `What this calculator includes` shows all three feature cards
+- CTA banner links correctly to `how-it-works.html`
+- FAQ rows expand and collapse cleanly using native disclosure behavior
+- FAQ answers stay concise and readable without causing layout overflow
 
 ## Secondary Page Checks
 

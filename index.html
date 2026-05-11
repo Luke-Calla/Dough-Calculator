@@ -163,14 +163,15 @@
   </nav>
 
   <header class="page-header">
-    <h1>Pizza Dough Calculator</h1>
-    <p>it calculates dough</p>
+    <h1 id="calculatorTitle">Pizza Dough Calculator</h1>
+    <p>Calculate ingredient weights and a bake schedule from your dough style, temperatures, and fermentation plan.</p>
   </header>
 
   <main class="main">
-    <div class="layout">
+    <section class="calculator-shell" aria-labelledby="calculatorTitle">
+      <div class="layout">
 
-      <div class="col-inputs">
+        <div class="col-inputs">
 
         <!-- PIZZA SETTINGS CARD -->
         <div class="card">
@@ -464,10 +465,10 @@
           </div>
         </div>
 
-      </div>
+        </div>
 
-      <div class="col-outputs">
-        <div class="output-card">
+        <div class="col-outputs">
+          <div class="output-card">
 
           <div class="output-header">
             <svg class="output-header-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -518,10 +519,97 @@
             <div class="timeline" id="timeline"></div>
           </div>
 
+          </div>
         </div>
+
+      </div>
+    </section>
+
+    <section class="calculator-explainer" aria-labelledby="calculatorIncludesTitle">
+      <div class="calculator-explainer-divider" aria-hidden="true"></div>
+
+      <div class="explainer-section-header">
+        <h2 class="explainer-section-title" id="calculatorIncludesTitle">What this calculator includes</h2>
       </div>
 
-    </div>
+      <div class="explainer-card-grid">
+        <article class="explainer-card">
+          <div class="explainer-card-icon" aria-hidden="true">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <use href="#icon-scale"/>
+            </svg>
+          </div>
+          <h3>Dough formula</h3>
+          <p>Works backwards from pizza count and dough ball weight to give you flour, water, salt, oil, sugar, and leavener weights.</p>
+        </article>
+
+        <article class="explainer-card">
+          <div class="explainer-card-icon" aria-hidden="true">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <use href="#icon-bubbles"/>
+            </svg>
+          </div>
+          <h3>Fermentation schedule</h3>
+          <p>Builds a backwards bake-day schedule from your room time, fridge time, room temperature, fridge temperature, and target bake time.</p>
+        </article>
+
+        <article class="explainer-card">
+          <div class="explainer-card-icon" aria-hidden="true">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <use href="#icon-starter-jar"/>
+            </svg>
+          </div>
+          <h3>Yeast or sourdough</h3>
+          <p>Supports IDY, fresh yeast, and sourdough starter, with timing and ingredient outputs that adapt to the leavener mode you choose.</p>
+        </article>
+      </div>
+
+      <section class="explainer-cta" aria-labelledby="explainerCtaTitle">
+        <div class="explainer-cta-copy">
+          <h2 id="explainerCtaTitle">Want to understand the calculation?</h2>
+          <p>Read how baker&apos;s percentages, fermentation timing, and leavener modes work so you can adjust the numbers with confidence.</p>
+        </div>
+        <a class="explainer-cta-link" href="how-it-works.html">
+          How it works
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 7h8M7 3l4 4-4 4"/>
+          </svg>
+        </a>
+      </section>
+
+      <section class="faq-section" aria-labelledby="commonQuestionsTitle">
+        <div class="explainer-section-header">
+          <h2 class="explainer-section-title" id="commonQuestionsTitle">Common questions</h2>
+        </div>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What dough ball weight should I use?</summary>
+            <p>Use the style presets as a starting point. Around 230 g works well for many Neapolitan pizzas, while larger New York-style pizzas often want a heavier ball. If you already know your preferred finished size, adjust the ball weight first and let the rest of the formula follow.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Why is the yeast amount so small?</summary>
+            <p>Yeast percentages are tiny because they are calculated against total flour weight, not the full dough weight. Longer fermentation times also need less yeast, so the number can look surprisingly small while still being correct.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>What hydration should I start with?</summary>
+            <p>If you are unsure, stay with the preset for your chosen pizza style. Around the low-to-mid 60s is easier to handle, while higher hydration doughs can feel stickier and need more confidence during shaping.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Can I use sourdough instead of yeast?</summary>
+            <p>Yes. Switch to sourdough mode and the calculator will replace the yeast logic with starter-specific timing and ingredient handling. You will get a starter percentage suggestion and the recipe output will account for the flour and water already inside the starter.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Why does fridge time matter?</summary>
+            <p>Cold fermentation slows the dough down, which changes both the yeast needed and the schedule needed to hit your bake time. It also affects the warm-up step, so short and long fridge ferments do not behave the same way.</p>
+          </details>
+        </div>
+      </section>
+    </section>
   </main>
 
   <script src="script.js" defer></script>

@@ -65,3 +65,4 @@ These are code-quality improvements rather than shipped user features.
 - Backend persistence
 - Framework migration
 - New dependencies without explicit approval
+

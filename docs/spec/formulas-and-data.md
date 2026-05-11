@@ -120,19 +120,23 @@ All schedule times are calculated backward from the target bake time.
 
 ### Warm-Up Time
 
-Warm-up now uses a closed-form Newton cooling model, not a lookup table.
+Warm-up now uses a two-stage Newton-style thermal model rather than assuming the dough instantly reaches full fridge temperature.
 
 ```text
-warmUpMinutes = tau * ln((T_fridge - T_room) / (T_target - T_room))
+coreAfterChill = T_fridge + (T_room - T_fridge) * exp(-(fridgeTimeMinutes / tau))
+warmUpMinutes = tau * ln((T_room - coreAfterChill) / (T_room - T_target))
 ```
 
 Current implementation notes:
 
-- Inputs are ball weight, fridge temperature, and room temperature
-- `T_target = 10 C`
+- Dough is assumed to enter the fridge at `roomTemp`
+- Inputs are fridge time, fridge temperature, and room temperature
+- Baseline thermal constant is fixed to a `240 g` dough ball
+- `T_target = 13 C`
 - Heat-transfer assumption: covered dough, `h = 5 W/m^2K`
+- If `coreAfterChill >= T_target`, auto warm-up is `0`
 - Auto result is snapped to the nearest 15 minutes
-- Manual override replaces the auto value
+- Manual warm-up is constrained to `0 .. min(180 min, fridgeTimeMinutes)` and stays on the 15-minute grid
 
 ### Yeast Modes
 
@@ -141,6 +145,8 @@ pullFromFridge = bakeTime - warmUpTime
 moveToFridge = pullFromFridge - fridgeTime
 mixDough = moveToFridge - roomTime
 ```
+
+If effective `warmUpTime = 0`, the `Pull from Fridge` step is omitted and `moveToFridge` is calculated directly from bake time.
 
 ### Sourdough Mode
 
@@ -173,6 +179,7 @@ showAdvisory when roomTime >= advisoryThreshold
 ## Current Model Limitations
 
 - Warm-up times are model-derived approximations, not experimentally validated measurements
+- Short cold-ferment warm-up estimates are especially approximate because the model treats the dough as a simple lumped thermal mass
 - Starter hydration timing correction is evidence-informed but approximate
 - Sourdough timing and overproof thresholds are calibrated estimates, not lab values
 - Large numeric tables are intentionally omitted here to keep the doc light
