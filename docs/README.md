@@ -1,4 +1,4 @@
-# Pizza Dough Calculator
+# Documentation Guide
 
 Documentation entrypoint for this repository.
 
@@ -28,6 +28,8 @@ Read this file first when you need to understand the documentation layout or cho
   Repeatable manual smoke tests for browser verification
 - `docs/code-map.md`
   Quick map of major responsibilities inside `script.js`
+- `docs/architecture/repo-structure-principles.md`
+  Reusable notes for file boundaries, naming, and repo growth decisions
 - `docs/architecture/decisions.md`
   Durable architectural decisions and reasoning
 - `docs/roadmap/backlog.md`
@@ -42,6 +44,7 @@ Read this file first when you need to understand the documentation layout or cho
 - `index.html`: structure and UI content
 - `style.css`: styling and responsive behavior
 - `script.js`: state, constants, calculations, rendering, interactions
+- `site-shell.js`: shared page-shell behavior across static pages
 - `CLAUDE.md`: working rules for AI/code changes
 
 ## Core Invariants

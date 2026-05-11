@@ -9,7 +9,7 @@ Read this file when the task depends on current UI behavior, field behavior, out
 ## AI Brief
 
 - Static zero-dependency pizza dough calculator
-- Main files: `index.html`, `style.css`, `script.js`
+- Main files: `index.html`, `style.css`, `script.js`, `site-shell.js`
 - Secondary page: `how-it-works.html`
 - Architecture rule: update `state`, then recalculate and re-render
 - Do not read from the DOM for calculations
@@ -23,7 +23,7 @@ Provide a public pizza dough calculator that preserves the spreadsheet model whi
 
 ## Technical Constraints
 
-- Three-file app architecture: `index.html`, `style.css`, `script.js`
+- Small static multi-file architecture: `index.html`, `style.css`, `script.js`, `site-shell.js`
 - Static hosting only
 - No frameworks
 - No package manager

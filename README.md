@@ -19,6 +19,8 @@ There is no `package.json`, no build step, no bundler, and no backend.
   Layout, design tokens, responsive rules, and component styling.
 - `script.js`
   State, constants, calculations, rendering, and event wiring.
+- `site-shell.js`
+  Shared page-shell behavior such as the theme toggle.
 - `how-it-works.html`
   Static explanatory page with shared navigation and theme behavior.
 
@@ -31,12 +33,16 @@ There is no `package.json`, no build step, no bundler, and no backend.
 
 ## Docs map
 
+- `docs/README.md`
+  Documentation entrypoint and reading guide.
 - `docs/spec/current-product-spec.md`
   Current shipped behavior and UI rules.
 - `docs/spec/formulas-and-data.md`
   Math, constants, schedule logic, and model notes.
 - `docs/code-map.md`
   Fast navigation map for the codebase.
+- `docs/architecture/repo-structure-principles.md`
+  General notes for organizing repos and choosing file boundaries.
 - `docs/testing/manual-test-checklist.md`
   Manual validation checklist for UI and logic changes.
 - `docs/changelog.md`
@@ -60,11 +66,10 @@ After meaningful UI or logic changes, use `docs/testing/manual-test-checklist.md
 
 ## Structural note
 
-The current two-page HTML structure is acceptable for this project and does not need to be split just because the files are around 24-25 KB.
+The current two-page HTML structure is acceptable for this project and does not need to be split just because the files are moderately large.
 
-If readability or maintenance becomes painful later, the first cleanup to consider is:
+Recent cleanup already moved active `how-it-works.html` page styles into `style.css` and shared page-shell behavior into `site-shell.js`.
 
-- move the large inline CSS block from `how-it-works.html` into `style.css`
-- review `script.js` for possible modular cleanup before splitting the HTML pages themselves
+If readability or maintenance becomes painful later, the next cleanup to consider is:
 
-That work is optional and can be revisited in a focused follow-up pass.
+- continue modular cleanup inside `script.js` before splitting the HTML pages themselves

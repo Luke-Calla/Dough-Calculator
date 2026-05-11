@@ -257,13 +257,18 @@ function getActiveLeavenerPctDisplay() {
 // Clears the leavener % override and reverts to the suggested value.
 function clearStarterOverride() {
   const input = document.getElementById('starterPct');
+  const badge = document.getElementById('starterPctBadge');
   if (state.leavener === 'sourdough') {
     state.sourdough.starterPctOverride = null;
   } else {
     state.yeast.pctOverride = null;
   }
   input.value = getActiveLeavenerPctDisplay();
-  input.classList.add('is-preset');
+  setFieldBadgeState(input, badge, {
+    isPreset: true,
+    presetText: 'Auto',
+    customText: 'Custom x',
+  });
   calculate();
 }
 
@@ -552,6 +557,15 @@ function dayLabel(stepMins) {
   return `${daysBefore} days before`;
 }
 
+const TIMELINE_SVG_ATTRS = 'width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+const TIMELINE_ICON_IDS = {
+  feedStarter: '#icon-timeline-feed-starter',
+  mixDough: '#icon-timeline-mix-dough',
+  moveToFridge: '#icon-timeline-move-to-fridge',
+  pullFromFridge: '#icon-timeline-pull-from-fridge',
+  bake: '#icon-timeline-bake',
+};
+
 /* =========================================================
    CORE: Build bake schedule
    =========================================================
@@ -572,19 +586,10 @@ function calcSchedule(starterWeight = 0) {
   }
   const bakeMinutes = hour24 * 60;
 
-  const SVG_ATTRS = `width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`;
-  const ICONS = {
-    feedStarter:    `<svg ${SVG_ATTRS}><use href="#icon-timeline-feed-starter"/></svg>`,
-    mixDough:       `<svg ${SVG_ATTRS}><use href="#icon-timeline-mix-dough"/></svg>`,
-    moveToFridge:   `<svg ${SVG_ATTRS}><use href="#icon-timeline-move-to-fridge"/></svg>`,
-    pullFromFridge: `<svg ${SVG_ATTRS}><use href="#icon-timeline-pull-from-fridge"/></svg>`,
-    bake:           `<svg ${SVG_ATTRS}><use href="#icon-timeline-bake"/></svg>`,
-  };
-
   const steps = [];
 
   // Bake is always the anchor at the bottom
-  steps.push({ name: 'Bake', time: formatTime(bakeMinutes), day: 'Bake day', isBake: true, icon: ICONS.bake });
+  steps.push({ name: 'Bake', time: formatTime(bakeMinutes), day: 'Bake day', isBake: true, iconKey: 'bake' });
 
   let mixMins;
   if (fridgeTime > 0) {
@@ -594,16 +599,16 @@ function calcSchedule(starterWeight = 0) {
       : roundWarmUpMinutes(rawWarmUp);
     const pullMins = bakeMinutes - warmUpMins;
     const warmUpDetail = `Allow to warm before shaping`;
-    steps.unshift({ name: 'Pull from Fridge', time: formatTime(pullMins), day: dayLabel(pullMins), isBake: false, icon: ICONS.pullFromFridge, detail: warmUpDetail });
+    steps.unshift({ name: 'Pull from Fridge', time: formatTime(pullMins), day: dayLabel(pullMins), isBake: false, iconKey: 'pullFromFridge', detail: warmUpDetail });
 
     const moveMins = pullMins - (fridgeTime * 60);
-    steps.unshift({ name: 'Move to Fridge', time: formatTime(moveMins), day: dayLabel(moveMins), isBake: false, icon: ICONS.moveToFridge });
+    steps.unshift({ name: 'Move to Fridge', time: formatTime(moveMins), day: dayLabel(moveMins), isBake: false, iconKey: 'moveToFridge' });
 
     mixMins = moveMins - (roomTime * 60);
   } else {
     mixMins = bakeMinutes - (roomTime * 60);
   }
-  steps.unshift({ name: 'Mix Dough', time: formatTime(mixMins), day: dayLabel(mixMins), isBake: false, icon: ICONS.mixDough });
+  steps.unshift({ name: 'Mix Dough', time: formatTime(mixMins), day: dayLabel(mixMins), isBake: false, iconKey: 'mixDough' });
 
   // Sourdough only: prepend a Feed Starter step before Mix Dough
   if (state.leavener === 'sourdough') {
@@ -627,150 +632,52 @@ function calcSchedule(starterWeight = 0) {
     }
 
     const peakDetail = `Feed ~${((mixMins - feedMins) / 60).toFixed(1)} hrs before mixing`;
-    steps.unshift({ name: 'Feed Starter', time: formatTime(feedMins), day: dayLabel(feedMins), isBake: false, icon: ICONS.feedStarter, detail: feedDetail, peakDetail });
+    steps.unshift({ name: 'Feed Starter', time: formatTime(feedMins), day: dayLabel(feedMins), isBake: false, iconKey: 'feedStarter', detail: feedDetail, peakDetail });
   }
 
   return steps;
 }
 
 /* =========================================================
-   UI: Update DOM with latest calculations
+   UI: Shared render helpers
 ========================================================= */
-function updateOutputs() {
-  // Recompute suggested leavener % from current inputs and update the field.
-  // Must run before calcIngredients() so state reflects the latest suggestion.
-  const leavenerInput = document.getElementById('starterPct');
-  const starterPctBadge = document.getElementById('starterPctBadge');
-  if (state.leavener === 'sourdough') {
-    const { roomTemp, roomTime, fridgeTime, fridgeTemp } = state.inputs;
-    const suggested = calcSuggestedStarterPct(roomTemp, roomTime, fridgeTime, fridgeTemp);
-    state.sourdough.starterPctSuggested = suggested;
-    if (state.sourdough.starterPctOverride === null) {
-      leavenerInput.value = Math.round(suggested * 100);
-      leavenerInput.classList.add('is-preset');
-      starterPctBadge.className = 'badge preset';
-      starterPctBadge.textContent = 'Auto';
-      starterPctBadge.onclick = null;
-    } else {
-      leavenerInput.classList.remove('is-preset');
-      starterPctBadge.className = 'badge custom';
-      starterPctBadge.textContent = 'Custom ×';
-      starterPctBadge.onclick = clearStarterOverride;
-    }
-  } else {
-    const { roomTemp, roomTime, fridgeTime, fridgeTemp } = state.inputs;
-    const suggested = calcYeastPct(roomTemp, roomTime, fridgeTime, fridgeTemp);
-    state.yeast.pctSuggested = suggested;
-    const m = yeastDisplayMultiplier();
-    if (state.yeast.pctOverride === null) {
-      leavenerInput.value = parseFloat((suggested * 100 * m).toFixed(3));
-      leavenerInput.classList.add('is-preset');
-      starterPctBadge.className = 'badge preset';
-      starterPctBadge.textContent = 'Auto';
-      starterPctBadge.onclick = null;
-    } else {
-      leavenerInput.classList.remove('is-preset');
-      starterPctBadge.className = 'badge custom';
-      starterPctBadge.textContent = 'Custom ×';
-      starterPctBadge.onclick = clearStarterOverride;
-    }
-  }
+function setFieldBadgeState(input, badge, {
+  isPreset,
+  presetText,
+  customText,
+  onCustomClick = null,
+}) {
+  input.classList.toggle('is-preset', isPreset);
+  badge.className = isPreset ? 'badge preset' : 'badge custom';
+  badge.textContent = isPreset ? presetText : customText;
+  badge.onclick = isPreset ? null : onCustomClick;
+}
 
-  // Sync warm-up stepper display and visibility
-  const warmUpField = document.getElementById('warmUpField');
-  if (warmUpField) {
-    const hasFridge = state.inputs.fridgeTime > 0;
-    warmUpField.hidden = !hasFridge;
-    if (hasFridge) {
-      const calcedWarmUp = roundWarmUpMinutes(calcWarmUpMinutes(getValue('ballWeight'), state.inputs.roomTemp, state.inputs.fridgeTemp));
-      const activeWarmUp = state.warmUpOverride !== null ? state.warmUpOverride : calcedWarmUp;
-      const warmUpDisplay = document.getElementById('warmUpDisplay');
-      warmUpDisplay.textContent = formatWarmUp(activeWarmUp);
-      warmUpDisplay.classList.toggle('is-auto', state.warmUpOverride === null);
-      const warmUpBadge = document.getElementById('warmUpBadge');
-      if (state.warmUpOverride === null) {
-        warmUpBadge.className = 'badge preset';
-        warmUpBadge.textContent = 'Auto';
-        warmUpBadge.onclick = null;
-      } else {
-        warmUpBadge.className = 'badge custom';
-        warmUpBadge.textContent = 'Custom ×';
-        warmUpBadge.onclick = () => {
-          state.warmUpOverride = null;
-          calculate();
-        };
-      }
-    }
-  }
+function getAutoWarmUpMinutes() {
+  return roundWarmUpMinutes(
+    calcWarmUpMinutes(getValue('ballWeight'), state.inputs.roomTemp, state.inputs.fridgeTemp)
+  );
+}
 
-  const result = calcIngredients();
-  const starterWeight = (state.leavener === 'sourdough' && !result.validationError)
-    ? result.starter : 0;
-  const steps = calcSchedule(starterWeight);
-  const timeline = document.getElementById('timeline');
-
-  // Brief fade on all ingredient values — confirms update
+function animateIngredientValues() {
   document.querySelectorAll('.ingredient-value').forEach(el => {
     el.classList.add('updating');
     setTimeout(() => el.classList.remove('updating'), 150);
   });
+}
 
-  document.getElementById('outTotalWeight').textContent = toDisplayWeight(result.totalDough);
-  document.getElementById('outTotalWeightUnit').textContent = weightUnit();
+function renderTimelineIcon(iconKey) {
+  if (!iconKey) return '';
+  return `<svg ${TIMELINE_SVG_ATTRS}><use href="${TIMELINE_ICON_IDS[iconKey]}"/></svg>`;
+}
 
-  const warning          = document.getElementById('sourdoughWarning');
-  const overproofAdvisory = document.getElementById('overproofAdvisory');
-  const ingredients      = document.getElementById('ingredientsSection');
-
-  // Overproof advisory — dynamic threshold based on leavener amount and room temp.
-  // Fires at 85% of estimated max safe proof time (warns early rather than at the cliff edge).
-  // Leavener amount: yeastPct for IDY/Fresh, starterPct for sourdough.
-  const { roomTime, roomTemp } = state.inputs;
-  const leavenerPct = state.leavener === 'sourdough'
-    ? getStarterPct()
-    : (result.yeastPct ?? 0);
-  const overproofThreshold = calcOverproofThreshold(leavenerPct, roomTemp, state.leavener);
-  const showAdvisory = roomTime >= overproofThreshold * 0.85;
-  if (showAdvisory) {
-    overproofAdvisory.textContent = state.leavener === 'sourdough'
-      ? 'Room time is approaching the overproof limit for this starter %. Expect excess sourness and reduced oven spring.'
-      : 'Room time is approaching the overproof limit for this yeast %. Expect slack texture and poor oven spring.';
-  }
-  overproofAdvisory.classList.toggle('visible', showAdvisory);
-
-  if (result.validationError) {
-    warning.textContent = result.validationError;
-    warning.classList.add('visible');
-    ingredients.style.display = 'none';
-    timeline.innerHTML = '';
-  } else {
-    warning.classList.remove('visible');
-    ingredients.style.display = '';
-
-    setIngredient('outFlour', result.flour);
-    setIngredient('outWater', result.water);
-    setIngredient('outSalt',  result.salt);
-    setIngredient('outOil',   result.oil);
-    setIngredient('outSugar', result.sugar);
-
-    if (state.leavener === 'sourdough') {
-      setIngredient('outYeast', result.starter);
-      document.getElementById('yeastLabel').textContent = 'Starter';
-      document.getElementById('flourLabel').textContent = 'Flour';
-      document.getElementById('waterLabel').textContent = 'Water';
-    } else {
-      const yeastVal = state.leavener === 'idy' ? result.yeastIDY : result.yeastFresh;
-      setIngredient('outYeast', yeastVal);
-      document.getElementById('yeastLabel').textContent =
-        state.leavener === 'idy' ? 'Yeast (IDY)' : 'Yeast (Fresh)';
-      document.getElementById('flourLabel').textContent = 'Flour';
-      document.getElementById('waterLabel').textContent = 'Water';
-    }
-    timeline.innerHTML = steps.map(step => `
+function renderTimeline(steps) {
+  const timeline = document.getElementById('timeline');
+  timeline.innerHTML = steps.map(step => `
       <div class="timeline-step">
         <div class="step-dot-col">
-          ${step.icon
-            ? `<div class="step-icon">${step.icon}</div>`
+          ${step.iconKey
+            ? `<div class="step-icon">${renderTimelineIcon(step.iconKey)}</div>`
             : `<div class="step-dot ${step.isBake ? 'bake' : ''}"></div>`}
         </div>
         <div class="step-content">
@@ -781,7 +688,138 @@ function updateOutputs() {
         </div>
       </div>
     `).join('');
+}
+
+function renderIngredients(result) {
+  setIngredient('outFlour', result.flour);
+  setIngredient('outWater', result.water);
+  setIngredient('outSalt',  result.salt);
+  setIngredient('outOil',   result.oil);
+  setIngredient('outSugar', result.sugar);
+
+  if (state.leavener === 'sourdough') {
+    setIngredient('outYeast', result.starter);
+    document.getElementById('yeastLabel').textContent = 'Starter';
+  } else {
+    const yeastVal = state.leavener === 'idy' ? result.yeastIDY : result.yeastFresh;
+    setIngredient('outYeast', yeastVal);
+    document.getElementById('yeastLabel').textContent =
+      state.leavener === 'idy' ? 'Yeast (IDY)' : 'Yeast (Fresh)';
   }
+
+  document.getElementById('flourLabel').textContent = 'Flour';
+  document.getElementById('waterLabel').textContent = 'Water';
+}
+
+function updateOverproofAdvisory(result) {
+  const overproofAdvisory = document.getElementById('overproofAdvisory');
+  const { roomTime, roomTemp } = state.inputs;
+  const leavenerPct = state.leavener === 'sourdough'
+    ? getStarterPct()
+    : (result.yeastPct ?? 0);
+  const overproofThreshold = calcOverproofThreshold(leavenerPct, roomTemp, state.leavener);
+  const showAdvisory = roomTime >= overproofThreshold * 0.85;
+
+  if (showAdvisory) {
+    overproofAdvisory.textContent = state.leavener === 'sourdough'
+      ? 'Room time is approaching the overproof limit for this starter %. Expect excess sourness and reduced oven spring.'
+      : 'Room time is approaching the overproof limit for this yeast %. Expect slack texture and poor oven spring.';
+  }
+  overproofAdvisory.classList.toggle('visible', showAdvisory);
+}
+
+function syncLeavenerPctField() {
+  const leavenerInput = document.getElementById('starterPct');
+  const starterPctBadge = document.getElementById('starterPctBadge');
+  const { roomTemp, roomTime, fridgeTime, fridgeTemp } = state.inputs;
+
+  if (state.leavener === 'sourdough') {
+    const suggested = calcSuggestedStarterPct(roomTemp, roomTime, fridgeTime, fridgeTemp);
+    state.sourdough.starterPctSuggested = suggested;
+    if (state.sourdough.starterPctOverride === null) {
+      leavenerInput.value = Math.round(suggested * 100);
+    }
+  } else {
+    const suggested = calcYeastPct(roomTemp, roomTime, fridgeTime, fridgeTemp);
+    state.yeast.pctSuggested = suggested;
+    if (state.yeast.pctOverride === null) {
+      leavenerInput.value = parseFloat((suggested * 100 * yeastDisplayMultiplier()).toFixed(3));
+    }
+  }
+
+  const isPreset = state.leavener === 'sourdough'
+    ? state.sourdough.starterPctOverride === null
+    : state.yeast.pctOverride === null;
+  setFieldBadgeState(leavenerInput, starterPctBadge, {
+    isPreset,
+    presetText: 'Auto',
+    customText: 'Custom x',
+    onCustomClick: clearStarterOverride,
+  });
+}
+
+function syncWarmUpField() {
+  const warmUpField = document.getElementById('warmUpField');
+  if (!warmUpField) return;
+
+  const hasFridge = state.inputs.fridgeTime > 0;
+  warmUpField.hidden = !hasFridge;
+  if (!hasFridge) return;
+
+  const warmUpDisplay = document.getElementById('warmUpDisplay');
+  const warmUpBadge = document.getElementById('warmUpBadge');
+  const activeWarmUp = state.warmUpOverride !== null
+    ? state.warmUpOverride
+    : getAutoWarmUpMinutes();
+
+  warmUpDisplay.textContent = formatWarmUp(activeWarmUp);
+  warmUpDisplay.classList.toggle('is-auto', state.warmUpOverride === null);
+  setFieldBadgeState(warmUpDisplay, warmUpBadge, {
+    isPreset: state.warmUpOverride === null,
+    presetText: 'Auto',
+    customText: 'Custom x',
+    onCustomClick: () => {
+      state.warmUpOverride = null;
+      calculate();
+    },
+  });
+}
+/* =========================================================
+   UI: Update DOM with latest calculations
+========================================================= */
+function updateOutputs() {
+  syncLeavenerPctField();
+  syncWarmUpField();
+
+  const result = calcIngredients();
+  const starterWeight = (state.leavener === 'sourdough' && !result.validationError)
+    ? result.starter
+    : 0;
+  const steps = calcSchedule(starterWeight);
+  const timeline = document.getElementById('timeline');
+
+  // Brief fade on all ingredient values - confirms update.
+  animateIngredientValues();
+
+  document.getElementById('outTotalWeight').textContent = toDisplayWeight(result.totalDough);
+  document.getElementById('outTotalWeightUnit').textContent = weightUnit();
+
+  const warning = document.getElementById('sourdoughWarning');
+  const ingredients = document.getElementById('ingredientsSection');
+  updateOverproofAdvisory(result);
+
+  if (result.validationError) {
+    warning.textContent = result.validationError;
+    warning.classList.add('visible');
+    ingredients.style.display = 'none';
+    timeline.innerHTML = '';
+    return;
+  }
+
+  warning.classList.remove('visible');
+  ingredients.style.display = '';
+  renderIngredients(result);
+  renderTimeline(steps);
 }
 
 function setIngredient(id, value) {
@@ -821,10 +859,11 @@ function loadPreset(style) {
     input.value = field === 'ballWeight'
       ? toDisplayWeight(state.presetValues[field])
       : state.presetValues[field];
-    input.classList.add('is-preset');
-    badge.className = 'badge preset';
-    badge.textContent = 'Preset';
-    badge.onclick = null;
+    setFieldBadgeState(input, badge, {
+      isPreset: true,
+      presetText: 'Preset',
+      customText: 'Custom x',
+    });
   });
 }
 
@@ -846,17 +885,20 @@ function onPresetFieldInput(field, value) {
       // Typed value matches the preset — revert to PRESET state
       delete state.userOverrides[field];
       input.value = field === 'ballWeight' ? toDisplayWeight(state.presetValues[field]) : state.presetValues[field];
-      input.classList.add('is-preset');
-      badge.className = 'badge preset';
-      badge.textContent = 'Preset';
-      badge.onclick = null;
+      setFieldBadgeState(input, badge, {
+        isPreset: true,
+        presetText: 'Preset',
+        customText: 'Custom x',
+      });
     } else {
       // Typed value differs from preset — switch to CUSTOM state
       state.userOverrides[field] = stateVal;
-      input.classList.remove('is-preset');
-      badge.className = 'badge custom';
-      badge.textContent = 'Custom x';
-      badge.onclick = () => clearOverride(field);
+      setFieldBadgeState(input, badge, {
+        isPreset: false,
+        presetText: 'Preset',
+        customText: 'Custom x',
+        onCustomClick: () => clearOverride(field),
+      });
     }
   }
 }
@@ -870,12 +912,65 @@ function clearOverride(field) {
   input.value = field === 'ballWeight'
     ? toDisplayWeight(state.presetValues[field])
     : state.presetValues[field];
-  input.classList.add('is-preset');
   const badge = document.getElementById(field + 'Badge');
-  badge.className = 'badge preset';
-  badge.textContent = 'Preset';
-  badge.onclick = null;
+  setFieldBadgeState(input, badge, {
+    isPreset: true,
+    presetText: 'Preset',
+    customText: 'Custom x',
+  });
   calculate();
+}
+
+function closeLeavenerTooltip() {
+  const tooltipBtn = document.getElementById('leavenerTooltipBtn');
+  const popover = tooltipBtn.parentElement.querySelector('.tooltip-popover');
+  if (popover) {
+    popover.hidden = true;
+    tooltipBtn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function getLeavenerUIConfig(type) {
+  if (type === 'sourdough') {
+    return {
+      label: 'Starter (%)',
+      showTooltip: true,
+      min: STARTER_PCT_CONFIG.min,
+      max: STARTER_PCT_CONFIG.max,
+      step: STARTER_PCT_CONFIG.step,
+    };
+  }
+
+  return {
+    label: type === 'idy' ? 'Yeast IDY (%)' : 'Yeast Fresh (%)',
+    showTooltip: false,
+    min: YEAST_PCT_CONFIG.min,
+    max: YEAST_PCT_CONFIG.max,
+    step: YEAST_PCT_CONFIG.step,
+  };
+}
+
+function applyLeavenerUI(type) {
+  const label = document.getElementById('leavenerPctLabel');
+  const tooltipBtn = document.getElementById('leavenerTooltipBtn');
+  const input = document.getElementById('starterPct');
+  const config = getLeavenerUIConfig(type);
+
+  label.textContent = config.label;
+  tooltipBtn.hidden = !config.showTooltip;
+  if (!config.showTooltip) closeLeavenerTooltip();
+  input.min = config.min;
+  input.max = config.max;
+  input.step = config.step;
+}
+
+function clearInactiveLeavenerOverrides(type) {
+  if (type === 'sourdough') {
+    state.yeast.pctOverride = null;
+    return;
+  }
+  state.sourdough.starterPctOverride = null;
+  state.yeast.pctOverride = null;
 }
 
 /* =========================================================
@@ -883,34 +978,12 @@ function clearOverride(field) {
 ========================================================= */
 function setLeavener(type) {
   state.leavener = type;
-  document.getElementById('btnIDY').classList.toggle('active', type === 'idy');
-  document.getElementById('btnFresh').classList.toggle('active', type === 'fresh');
-  document.getElementById('btnSourdough').classList.toggle('active', type === 'sourdough');
+  document.querySelectorAll('.leavener-toggle button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.leavener === type);
+  });
   document.getElementById('sourdoughCard').classList.toggle('visible', type === 'sourdough');
-
-  const label      = document.getElementById('leavenerPctLabel');
-  const tooltipBtn = document.getElementById('leavenerTooltipBtn');
-  const input      = document.getElementById('starterPct');
-  if (type === 'sourdough') {
-    label.textContent = 'Starter (%)';
-    tooltipBtn.hidden = false;
-    input.min  = STARTER_PCT_CONFIG.min;
-    input.max  = STARTER_PCT_CONFIG.max;
-    input.step = STARTER_PCT_CONFIG.step;
-    state.yeast.pctOverride = null;
-  } else {
-    label.textContent = type === 'idy' ? 'Yeast IDY (%)' : 'Yeast Fresh (%)';
-    tooltipBtn.hidden = true;
-    // Close any open tooltip popover when switching away from sourdough
-    const popover = tooltipBtn.parentElement.querySelector('.tooltip-popover');
-    if (popover) { popover.hidden = true; tooltipBtn.setAttribute('aria-expanded', 'false'); }
-    input.min  = YEAST_PCT_CONFIG.min;
-    input.max  = YEAST_PCT_CONFIG.max;
-    input.step = YEAST_PCT_CONFIG.step;
-    state.sourdough.starterPctOverride = null;
-    state.yeast.pctOverride = null;
-  }
-
+  applyLeavenerUI(type);
+  clearInactiveLeavenerOverrides(type);
   updateOutputs();
 }
 
@@ -1287,45 +1360,6 @@ setLeavener(state.leavener);
 }());
 
 /* ========================================================
-   THEME TOGGLE
-   ========================================================
-   Wires the nav toggle button. On click: flip data-theme on
-   <html>, update the icon and aria-label, save to localStorage.
-======================================================== */
-function initTheme() {
-  const btn = document.querySelector('.theme-toggle');
-  if (!btn) return;
-
-  function getTheme() {
-    return document.documentElement.getAttribute('data-theme');
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    updateIcon(theme);
-  }
-
-  function updateIcon(theme) {
-    const use = btn.querySelector('use');
-    if (theme === 'dark') {
-      use.setAttribute('href', '#icon-sun');
-      btn.setAttribute('aria-label', 'Switch to light mode');
-    } else {
-      use.setAttribute('href', '#icon-moon');
-      btn.setAttribute('aria-label', 'Switch to dark mode');
-    }
-  }
-
-  // Set correct icon for the theme already applied by the inline script
-  updateIcon(getTheme());
-
-  btn.addEventListener('click', function () {
-    applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
-  });
-}
-
-/* ========================================================
    UNIT TOGGLE
    ========================================================
    Flips state.units between 'metric' and 'imperial', then
@@ -1381,8 +1415,6 @@ document.querySelectorAll('#unitToggle button').forEach(btn => {
   });
 });
 
-initTheme();
-
 /* ========================================================
    MOBILE KEYBOARD SCROLL
    When the soft keyboard opens it shrinks the visual viewport.
@@ -1420,3 +1452,4 @@ initTheme();
     });
   }
 }());
+

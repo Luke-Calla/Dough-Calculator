@@ -10,7 +10,8 @@ Read this file when you need to jump to the right part of the code quickly, espe
 
 - `index.html`: form structure, output markup, nav, icon sprite
 - `style.css`: design tokens, layout, responsive rules, component styling
-- `script.js`: state, constants, calculations, rendering, event listeners, interaction wiring
+- `script.js`: calculator state, constants, calculations, rendering, event listeners, interaction wiring
+- `site-shell.js`: shared page-shell behavior such as theme toggling
 - `how-it-works.html`: standalone explanatory page with shared nav/theme conventions
 
 ## `script.js` Responsibility Map
@@ -107,6 +108,18 @@ Use this area when changing:
 - User interaction behavior
 - Input lifecycles
 - Override/reset flows
+
+## `site-shell.js` Responsibility Map
+
+Look here for:
+
+- Shared theme behavior
+- Page-shell interactions needed by more than one HTML page
+
+Use this area when changing:
+
+- Cross-page UI behavior
+- Shared shell controls
 
 ## High-Risk Areas
 
