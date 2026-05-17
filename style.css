@@ -526,7 +526,7 @@ body {
 
 @media (min-width: 768px) {
   .explainer-card-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .explainer-cta {
@@ -1432,7 +1432,7 @@ input[type="range"]::-moz-range-thumb {
   font-size: clamp(3rem, 8vw, 5.5rem);
   font-weight: 400;
   line-height: 0.95;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   color: var(--text-dark);
   margin-bottom: 20px;
 }
@@ -1498,6 +1498,11 @@ input[type="range"]::-moz-range-thumb {
 
 .hiw-body p + p {
   margin-top: 16px;
+}
+
+.hiw-section > .hiw-body {
+  max-width: 720px;
+  margin-bottom: 28px;
 }
 
 .hiw-steps {
@@ -1599,6 +1604,12 @@ input[type="range"]::-moz-range-thumb {
 @media (min-width: 600px) {
   .hiw-comparison {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 860px) {
+  .hiw-comparison-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

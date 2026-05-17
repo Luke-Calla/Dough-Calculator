@@ -16,7 +16,8 @@ Read this file first when you need to understand the documentation layout or cho
 2. `CLAUDE.md`
 3. `docs/spec/formulas-and-data.md` if the task touches calculations
 4. `docs/roadmap/backlog.md` if the task is about unshipped work
-5. `docs/changelog.md` if historical context is needed
+5. `docs/design/page-content-structure.md` if the task is about page layout or explanatory content structure
+6. `docs/changelog.md` if historical context is needed
 
 ## Document Map
 
@@ -32,6 +33,8 @@ Read this file first when you need to understand the documentation layout or cho
   Reusable notes for file boundaries, naming, and repo growth decisions
 - `docs/architecture/decisions.md`
   Durable architectural decisions and reasoning
+- `docs/design/page-content-structure.md`
+  Proposed content and layout structure for the calculator and how-it-works pages
 - `docs/roadmap/backlog.md`
   Unshipped work only
 - `docs/changelog.md`

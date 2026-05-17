@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>How It Works | Dough Formula</title>
-  <meta name="description" content="The science behind Dough Formula — baker's percentages, fermentation models, yeast vs sourdough, and time-temperature relationships.">
+  <meta name="description" content="How Dough Formula turns pizza style, dough size, leavener, time, and temperature into ingredient weights and a bake schedule.">
   <meta name="theme-color" content="#2b2b2b">
 
   <link rel="preload" href="style.css" as="style">
@@ -26,7 +26,6 @@
 
 <body>
 
-  <!-- SVG sprites reused from main app -->
   <svg style="display: none;" aria-hidden="true">
     <defs>
       <symbol id="icon-calculator" viewBox="0 0 24 24">
@@ -56,7 +55,6 @@
     </defs>
   </svg>
 
-  <!-- Nav -->
   <nav class="nav">
     <div class="nav-left">
       <div class="nav-brand">Dough <span>Formula</span></div>
@@ -77,15 +75,13 @@
     </div>
   </nav>
 
-  <!-- Hero -->
   <header class="hiw-hero">
-    <h1>How It Works</h1>
-    <p>A rigorous analytical approach to the science of fermentation, hydration, and the alchemy of grain.</p>
+    <h1>How the Dough Calculator Works</h1>
+    <p>A plain-English guide to what the calculator uses, what it estimates, and what it leaves to your judgement.</p>
   </header>
 
   <main class="hiw-main">
 
-    <!-- Section 1: How to Use -->
     <section class="hiw-section">
       <h2 class="hiw-section-title">How to Use the Calculator</h2>
       <div class="hiw-steps">
@@ -93,100 +89,151 @@
         <div class="hiw-step">
           <span class="hiw-step-num">01</span>
           <div class="hiw-step-content">
-            <h3>Define Your Base</h3>
-            <p>Select your pizza style and enter the number of balls and target ball weight. The calculator derives total flour weight from these values.</p>
+            <h3>Choose the base</h3>
+            <p>Pick a pizza style, then set how many dough balls you want and how heavy each ball should be.</p>
           </div>
         </div>
 
         <div class="hiw-step">
           <span class="hiw-step-num">02</span>
           <div class="hiw-step-content">
-            <h3>Select Leavener Type</h3>
-            <p>Choose between instant dry yeast, fresh yeast, or a sourdough starter. Each mode adjusts the fermentation model and which variables are relevant.</p>
+            <h3>Choose the leavener</h3>
+            <p>Use instant dry yeast, fresh yeast, or sourdough starter. The calculator shows the fields that matter for that choice.</p>
           </div>
         </div>
 
         <div class="hiw-step">
           <span class="hiw-step-num">03</span>
           <div class="hiw-step-content">
-            <h3>Adjust Variables</h3>
-            <p>Set your room and fridge temperatures, bulk and cold fermentation times, and target bake time. The model recalculates in real time.</p>
+            <h3>Set time and temperature</h3>
+            <p>Enter your room time, fridge time, room temperature, fridge temperature, and target bake time.</p>
           </div>
         </div>
 
         <div class="hiw-step">
           <span class="hiw-step-num">04</span>
           <div class="hiw-step-content">
-            <h3>Execute the Formula</h3>
-            <p>The output card shows exact ingredient weights and a backwards-counted bake schedule, telling you precisely when to start each stage.</p>
+            <h3>Read the formula</h3>
+            <p>The output gives ingredient weights and a schedule counted back from when you want to bake.</p>
           </div>
         </div>
 
       </div>
     </section>
 
-    <!-- Section 2: Baker's Percentages -->
     <section class="hiw-section">
       <div class="hiw-grid wide-left">
 
         <div>
           <h2 class="hiw-section-title">Baker's Percentages</h2>
           <div class="hiw-body">
-            <p>At the heart of every great loaf is a mathematical constant. Baker's percentages define every ingredient as a ratio of total flour weight — the one fixed reference point in any formula.</p>
-            <p>This system eliminates the ambiguity of volume measurements and lets you scale a recipe without touching its underlying structure. Doubling a batch means doubling the flour; every other ingredient follows automatically.</p>
+            <p>Baker's percentages start with flour. Flour is always 100%, and everything else is measured against that flour weight.</p>
+            <p>This is why the recipe scales cleanly. Change the number of pizzas or the dough-ball weight, and the calculator can rebuild the ingredient weights while keeping the same dough style.</p>
           </div>
         </div>
 
         <div class="hiw-dark-card">
-          <span class="hiw-dark-card-label">Scientific Breakdown — Neapolitan Standard</span>
+          <span class="hiw-dark-card-label">Example formula</span>
           <div class="hiw-pct-table">
             <div class="hiw-pct-row">
               <span class="hiw-pct-name">Flour</span>
               <span class="hiw-pct-val">100%</span>
             </div>
             <div class="hiw-pct-row">
-              <span class="hiw-pct-name">Water (Hydration)</span>
+              <span class="hiw-pct-name">Water</span>
               <span class="hiw-pct-val">65%</span>
             </div>
             <div class="hiw-pct-row">
-              <span class="hiw-pct-name">Sea Salt</span>
-              <span class="hiw-pct-val">3%</span>
+              <span class="hiw-pct-name">Salt</span>
+              <span class="hiw-pct-val">2.5%</span>
             </div>
             <div class="hiw-pct-row">
-              <span class="hiw-pct-name">Yeast (IDY)</span>
-              <span class="hiw-pct-val">0.1%</span>
+              <span class="hiw-pct-name">Oil and sugar</span>
+              <span class="hiw-pct-val">0%</span>
             </div>
           </div>
-          <span class="hiw-pct-source">Reference: AVPN International Standard (Mod. 2024)</span>
+          <span class="hiw-pct-source">Your selected style and overrides decide the actual values.</span>
         </div>
 
       </div>
     </section>
 
-    <!-- Section 3: Yeast vs Sourdough -->
     <section class="hiw-section">
+      <h2 class="hiw-section-title">Pizza Style Presets</h2>
+      <div class="hiw-body">
+        <p>Presets are starting points. They set the default ball weight, hydration, salt, oil, and sugar for a style, but you can still change the values that matter to your bake.</p>
+      </div>
+
+      <div class="hiw-steps hiw-style-grid">
+        <div class="hiw-step">
+          <span class="hiw-step-num">230g</span>
+          <div class="hiw-step-content">
+            <h3>Neapolitan</h3>
+            <p>Moderate hydration, no oil or sugar, and a compact dough ball for hot, fast bakes.</p>
+          </div>
+        </div>
+
+        <div class="hiw-step">
+          <span class="hiw-step-num">240g</span>
+          <div class="hiw-step-content">
+            <h3>New York</h3>
+            <p>Slightly lower hydration with oil and sugar for a broader, sturdier pizza.</p>
+          </div>
+        </div>
+
+        <div class="hiw-step">
+          <span class="hiw-step-num">250g</span>
+          <div class="hiw-step-content">
+            <h3>Canotto</h3>
+            <p>Higher hydration and more salt for a lighter, puffier rim.</p>
+          </div>
+        </div>
+
+        <div class="hiw-step">
+          <span class="hiw-step-num">175g</span>
+          <div class="hiw-step-content">
+            <h3>Tonda Romana</h3>
+            <p>A smaller dough ball with lower hydration and more oil for a crisp base.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hiw-section">
+      <h2 class="hiw-section-title">Leavener Modes</h2>
       <div class="hiw-dark-card" style="padding: 0;">
-        <div class="hiw-comparison">
+        <div class="hiw-comparison hiw-comparison-three">
 
           <div class="hiw-comparison-col">
-            <span class="hiw-comparison-icon">⚡</span>
-            <h3>Commercial Yeast</h3>
-            <p>Designed for the clinical baker. Provides an aggressive, predictable lift that focuses on structural integrity and speed. Two variants: instant dry (IDY) and fresh cake yeast, which is roughly three times the weight for the same activity.</p>
+            <span class="hiw-comparison-icon">IDY</span>
+            <h3>Instant dry yeast</h3>
+            <p>IDY amounts can look tiny because they are based on flour weight. Longer ferments usually need less yeast.</p>
             <ul>
-              <li>• Predictable Fermentation Window</li>
-              <li>• High CO₂ Retention</li>
-              <li>• Neutral pH Profile</li>
+              <li>Small amounts</li>
+              <li>Easy default</li>
+              <li>Schedule-based</li>
             </ul>
           </div>
 
           <div class="hiw-comparison-col">
-            <span class="hiw-comparison-icon">🌿</span>
-            <h3>Sourdough (Wild)</h3>
-            <p>The artisan's signature. A wild symbiotic culture of yeast and lactic acid bacteria produces complex acidity, extended shelf life, and improved nutrient bioavailability. Timing depends on starter health, hydration, and feed ratio.</p>
+            <span class="hiw-comparison-icon">Fresh</span>
+            <h3>Fresh yeast</h3>
+            <p>Fresh yeast is shown at about three times the IDY amount, so the weight matches how fresh yeast is normally measured.</p>
             <ul>
-              <li>• Enhanced Flavour Complexity</li>
-              <li>• Natural Preservatives</li>
-              <li>• Slower Biological Process</li>
+              <li>Same timing</li>
+              <li>Heavier dose</li>
+              <li>Fresh yeast format</li>
+            </ul>
+          </div>
+
+          <div class="hiw-comparison-col">
+            <span class="hiw-comparison-icon">SD</span>
+            <h3>Sourdough starter</h3>
+            <p>Sourdough mode suggests a starter amount and subtracts the flour and water already inside that starter from the bowl mix.</p>
+            <ul>
+              <li>Starter percentage</li>
+              <li>Starter hydration</li>
+              <li>Feed ratio</li>
             </ul>
           </div>
 
@@ -194,81 +241,123 @@
       </div>
     </section>
 
-    <!-- Section 4: Time and Temperature -->
     <section class="hiw-section">
       <div class="hiw-grid wide-right">
 
         <div class="hiw-dark-card hiw-chart-wrap">
-          <span class="hiw-chart-title">Enzymatic Activity Curve</span>
+          <span class="hiw-chart-title">Fermentation pace</span>
           <div class="hiw-chart">
             <svg viewBox="0 0 100 40" preserveAspectRatio="none" fill="none">
-              <path d="M 0 40 Q 30 0 50 8 T 100 40" stroke="#C1440E" stroke-width="0.75"/>
-              <circle cx="50" cy="8" r="1.5" fill="#C1440E"/>
+              <path d="M 0 34 Q 28 28 48 14 T 100 7" stroke="#C1440E" stroke-width="0.75"/>
+              <circle cx="48" cy="14" r="1.5" fill="#C1440E"/>
             </svg>
-            <span class="hiw-chart-peak">Peak Activity (26°C)</span>
-            <span class="hiw-chart-axis left">4°C (Cold)</span>
-            <span class="hiw-chart-axis right">45°C (Death)</span>
+            <span class="hiw-chart-peak">Warmer means faster</span>
+            <span class="hiw-chart-axis left">Cold fridge</span>
+            <span class="hiw-chart-axis right">Warm room</span>
           </div>
         </div>
 
         <div>
           <h2 class="hiw-section-title">Time and Temperature</h2>
           <div class="hiw-body">
-            <p>The invisible hand of the baker is temperature. Yeast activity is not linear — it follows a curve shaped by the thermal energy within the dough mass and its environment.</p>
-            <p>Below 4°C fermentation stalls almost entirely, which is why a cold fridge rise can extend a schedule from hours to days. Above ~40°C yeast begins to die. Peak activity sits around 26–28°C for <em>Saccharomyces cerevisiae</em>.</p>
-            <p>The calculator uses lookup tables calibrated at multiple temperature and time intervals to interpolate the precise yeast activity for your conditions.</p>
+            <p>Fermentation depends on both time and temperature. A warm room moves dough along faster; a cold fridge slows it down.</p>
+            <p>The calculator uses your room and fridge settings to estimate the leavener amount for the schedule you want.</p>
+            <p>If the dough goes into the fridge, the calculator can also add a pull-from-fridge step and estimate a warm-up window before baking.</p>
           </div>
         </div>
 
       </div>
     </section>
 
-    <!-- Section 5: The Fermentation Model -->
     <section class="hiw-section">
       <div class="hiw-grid">
 
         <div>
-          <h2 class="hiw-section-title">The Fermentation Model</h2>
-          <p class="hiw-quote">"The algorithm uses non-linear activity tables built from empirical fermentation data, simulating the biological progression of yeast within specific environmental conditions — then works backwards from your target bake time to give you a precise schedule."</p>
+          <h2 class="hiw-section-title">Bake Schedule</h2>
+          <div class="hiw-body">
+            <p>The schedule starts with your bake time and works backwards. From there it subtracts warm-up time, fridge time, room time, and sourdough starter timing when needed.</p>
+            <p>A room-only dough may only need mix and bake steps. A cold ferment adds fridge steps. Sourdough adds a starter feed before the mix.</p>
+          </div>
           <div class="hiw-stats">
             <div>
-              <div class="hiw-stat-val">4 tables</div>
-              <div class="hiw-stat-label">Calibration Data</div>
+              <div class="hiw-stat-val">15 min</div>
+              <div class="hiw-stat-label">Warm-up grid</div>
             </div>
             <div>
-              <div class="hiw-stat-val">300ms</div>
-              <div class="hiw-stat-label">Recalculation</div>
+              <div class="hiw-stat-val">30 min</div>
+              <div class="hiw-stat-label">Starter feed rounding</div>
             </div>
           </div>
         </div>
 
         <div class="hiw-dark-card hiw-timeline-wrap">
-          <span class="hiw-dark-card-label">Fermentation Timeline</span>
+          <span class="hiw-dark-card-label">Cold-ferment path</span>
           <div class="hiw-timeline-track-wrap">
             <div class="hiw-timeline-line"></div>
             <div class="hiw-timeline-nodes">
               <div class="hiw-timeline-node">
                 <div class="hiw-timeline-dot"></div>
                 <div class="hiw-timeline-node-label">Mix</div>
-                <div class="hiw-timeline-node-temp">24°C</div>
+                <div class="hiw-timeline-node-temp">Room</div>
               </div>
               <div class="hiw-timeline-node">
                 <div class="hiw-timeline-dot"></div>
-                <div class="hiw-timeline-node-label">Bulk</div>
-                <div class="hiw-timeline-node-temp">21°C</div>
+                <div class="hiw-timeline-node-label">Fridge</div>
+                <div class="hiw-timeline-node-temp">Cold</div>
               </div>
               <div class="hiw-timeline-node">
                 <div class="hiw-timeline-dot"></div>
-                <div class="hiw-timeline-node-label">Proof</div>
-                <div class="hiw-timeline-node-temp">4°C</div>
+                <div class="hiw-timeline-node-label">Warm</div>
+                <div class="hiw-timeline-node-temp">Optional</div>
               </div>
               <div class="hiw-timeline-node">
                 <div class="hiw-timeline-dot"></div>
                 <div class="hiw-timeline-node-label">Bake</div>
-                <div class="hiw-timeline-node-temp">300°C</div>
+                <div class="hiw-timeline-node-temp">Anchor</div>
               </div>
             </div>
           </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="hiw-section">
+      <div class="hiw-grid wide-left">
+
+        <div>
+          <h2 class="hiw-section-title">What It Does Not Know</h2>
+          <div class="hiw-body">
+            <p>The calculator gives you a useful plan, but it cannot see the dough. It does not know your flour strength, starter health, actual dough temperature, room-temperature swings, humidity, handling, or oven setup.</p>
+            <p>Warm-up time is an estimate. Auto warm-up can be zero when the dough has not chilled enough to need a separate pull-from-fridge step.</p>
+          </div>
+        </div>
+
+        <div class="hiw-dark-card">
+          <span class="hiw-dark-card-label">Things to judge by feel</span>
+          <div class="hiw-pct-table">
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Starter strength</span>
+              <span class="hiw-pct-val">varies</span>
+            </div>
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Flour and handling</span>
+              <span class="hiw-pct-val">matter</span>
+            </div>
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Dough temperature</span>
+              <span class="hiw-pct-val">unknown</span>
+            </div>
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Oven setup</span>
+              <span class="hiw-pct-val">outside</span>
+            </div>
+            <div class="hiw-pct-row">
+              <span class="hiw-pct-name">Overproof warnings</span>
+              <span class="hiw-pct-val">guidance</span>
+            </div>
+          </div>
+          <span class="hiw-pct-source">Use the schedule as a starting point, then adjust from what the dough is doing.</span>
         </div>
 
       </div>
@@ -276,10 +365,9 @@
 
   </main>
 
-  <!-- Footer CTA -->
   <footer class="hiw-footer">
     <h2>Ready to calculate your formula?</h2>
-    <p class="hiw-footer-sub">Apply these principles to your next bake.</p>
+    <p class="hiw-footer-sub">Open the calculator and build your next dough.</p>
     <a class="hiw-cta-btn" href="index.html">
       Open the Calculator
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -288,14 +376,8 @@
     </a>
     <div class="hiw-footer-divider"></div>
     <div class="hiw-footer-brand">Dough Formula</div>
-    <div class="hiw-footer-links">
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
-      <a href="#">Research</a>
-    </div>
-    <p class="hiw-footer-copy">© 2024 Dough Formula</p>
+    <p class="hiw-footer-copy">2026 Dough Formula</p>
   </footer>
 
 </body>
 </html>
-

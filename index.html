@@ -529,7 +529,7 @@
       <div class="calculator-explainer-divider" aria-hidden="true"></div>
 
       <div class="explainer-section-header">
-        <h2 class="explainer-section-title" id="calculatorIncludesTitle">What this calculator includes</h2>
+        <h2 class="explainer-section-title" id="calculatorIncludesTitle">Quick notes for this bake</h2>
       </div>
 
       <div class="explainer-card-grid">
@@ -539,8 +539,8 @@
               <use href="#icon-scale"/>
             </svg>
           </div>
-          <h3>Dough formula</h3>
-          <p>Works backwards from pizza count and dough ball weight to give you flour, water, salt, oil, sugar, and leavener weights.</p>
+          <h3>Formula</h3>
+          <p>Set your pizza count and dough-ball weight. The calculator turns that into flour, water, salt, oil, sugar, and leavener weights.</p>
         </article>
 
         <article class="explainer-card">
@@ -549,8 +549,8 @@
               <use href="#icon-bubbles"/>
             </svg>
           </div>
-          <h3>Fermentation schedule</h3>
-          <p>Builds a backwards bake-day schedule from your room time, fridge time, room temperature, fridge temperature, and target bake time.</p>
+          <h3>Timing</h3>
+          <p>Room time, fridge time, and temperature affect both the leavener amount and the bake schedule.</p>
         </article>
 
         <article class="explainer-card">
@@ -559,15 +559,25 @@
               <use href="#icon-starter-jar"/>
             </svg>
           </div>
-          <h3>Yeast or sourdough</h3>
-          <p>Supports IDY, fresh yeast, and sourdough starter, with timing and ingredient outputs that adapt to the leavener mode you choose.</p>
+          <h3>Leavener</h3>
+          <p>Use IDY, fresh yeast, or sourdough starter. Sourdough mode also accounts for the flour and water already in the starter.</p>
+        </article>
+
+        <article class="explainer-card">
+          <div class="explainer-card-icon" aria-hidden="true">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <use href="#icon-info"/>
+            </svg>
+          </div>
+          <h3>Judgement</h3>
+          <p>The calculator cannot see your dough. Starter strength, flour, handling, room swings, and oven setup still matter.</p>
         </article>
       </div>
 
       <section class="explainer-cta" aria-labelledby="explainerCtaTitle">
         <div class="explainer-cta-copy">
-          <h2 id="explainerCtaTitle">Want to understand the calculation?</h2>
-          <p>Read how baker&apos;s percentages, fermentation timing, and leavener modes work so you can adjust the numbers with confidence.</p>
+          <h2 id="explainerCtaTitle">Want the longer explanation?</h2>
+          <p>See how baker&apos;s percentages, leavener choices, time, and temperature shape the result.</p>
         </div>
         <a class="explainer-cta-link" href="how-it-works.html">
           How it works
@@ -590,7 +600,12 @@
 
           <details class="faq-item">
             <summary>Why is the yeast amount so small?</summary>
-            <p>Yeast percentages are tiny because they are calculated against total flour weight, not the full dough weight. Longer fermentation times also need less yeast, so the number can look surprisingly small while still being correct.</p>
+            <p>Yeast is calculated against flour weight, not the full dough weight. Longer ferments also need less yeast, so the number can look surprisingly small.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>How do I measure such a small amount of yeast?</summary>
+            <p>The best fallback is to dilute a known amount. For example, dissolve a 7 g sachet of yeast into 70 g of water. Each 10 g of that liquid contains about 1 g of yeast, so if the recipe asks for 1.6 g yeast, use 16 g of the yeast water and subtract 16 g from the recipe water. If you do not know the sachet weight, instant yeast is roughly 3 g per teaspoon, 1.5 g per half-teaspoon, or 0.75 g per quarter-teaspoon. You can dilute from that estimate too, but it will be less accurate. If you make pizza often, a 0.01 g precision scale is the better tool.</p>
           </details>
 
           <details class="faq-item">
@@ -606,6 +621,11 @@
           <details class="faq-item">
             <summary>Why does fridge time matter?</summary>
             <p>Cold fermentation slows the dough down, which changes both the yeast needed and the schedule needed to hit your bake time. It also affects the warm-up step, so short and long fridge ferments do not behave the same way.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>What does the calculator not know?</summary>
+            <p>It does not know your flour strength, starter health, actual dough temperature, room-temperature swings, humidity, handling, or oven setup. Use the schedule as a starting point, then adjust from what the dough is doing.</p>
           </details>
         </div>
       </section>

@@ -6,6 +6,17 @@ Compressed history of shipped user-visible changes and notable fixes.
 
 Read this file when historical context matters, such as tracing when behavior changed or understanding why an older implementation exists. Do not use it as the current source of truth for behavior.
 
+## 2026-05-17
+
+- Retuned the main calculator explainer into quick bake notes and added FAQ entries for measuring tiny yeast amounts and calculator limitations
+
+## 2026-05-16
+
+- Added `docs/design/page-content-structure.md` as a proposed reference for the calculator and how-it-works page content split
+- Rebuilt `how-it-works.html` around a practical explanatory sequence: workflow, baker's percentages, style presets, leavener modes, time and temperature, bake scheduling, and calculator limits
+- Tightened `how-it-works.html` copy to make the page plainer and clearer about what the calculator cannot know
+- Removed placeholder footer links from `how-it-works.html`
+
 ## 2026-05-11
 
 - Expanded `index.html` with a new below-the-calculator explainer area, including feature cards, a `How It Works` CTA, and a short FAQ

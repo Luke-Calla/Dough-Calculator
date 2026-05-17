@@ -45,7 +45,7 @@ Provide a public pizza dough calculator that preserves the spreadsheet model whi
 - IDY, fresh yeast, and sourdough modes
 - Sourdough starter percentage suggestion with user override
 - Responsive layout: stacked on mobile, two columns on desktop
-- Calculator page explainer section with feature cards, CTA, and FAQ
+- Calculator page explainer section with quick bake-note cards, CTA, and FAQ
 - Bake schedule with relative day labels
 - Dynamic warm-up timing with optional manual override
 - Dynamic overproof advisory
@@ -53,7 +53,7 @@ Provide a public pizza dough calculator that preserves the spreadsheet model whi
 - Dark mode with system default and persisted user override
 - Imperial/metric display toggle
 - Print-friendly output card
-- Standalone `how-it-works.html` knowledge page
+- Standalone `how-it-works.html` knowledge page covering workflow, baker's percentages, style presets, leavener modes, time and temperature, bake scheduling, warm-up behavior, and calculator limitations
 
 ## Inputs
 
@@ -215,6 +215,7 @@ Fresh yeast % display: the field shows `yeastPct × 3` when in fresh mode so the
 - URL sharing is architecturally ready but not shipped
 - No account, storage, or backend features
 - `how-it-works.html` is a static knowledge page with minimal JS
+- `how-it-works.html` explains the calculator through a practical sequence: how to use the calculator, baker's percentages, style presets, leavener modes, time and temperature, bake scheduling, and things the calculator cannot know
 
 ## References
 
