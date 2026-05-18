@@ -4,8 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>How It Works | Dough Formula</title>
-  <meta name="description" content="How Dough Formula turns pizza style, dough size, leavener, time, and temperature into ingredient weights and a bake schedule.">
+  <title>How the Pizza Dough Calculator Works</title>
+  <meta name="description" content="How the Pizza Dough Calculator turns baker's percentages, fermentation time, and temperature into a pizza dough recipe and bake schedule.">
+  <!-- LAUNCH-TODO: replace placeholder domain before going live -->
+  <link rel="canonical" href="https://pizza-dough-calculator.example/how-it-works.html">
+  <meta property="og:title" content="How the Pizza Dough Calculator Works">
+  <meta property="og:description" content="How the Pizza Dough Calculator turns baker's percentages, fermentation time, and temperature into a pizza dough recipe and bake schedule.">
+  <meta property="og:type" content="article">
+  <!-- LAUNCH-TODO: replace placeholder domain before going live -->
+  <meta property="og:url" content="https://pizza-dough-calculator.example/how-it-works.html">
+  <!-- LAUNCH-TODO: replace placeholder domain before going live -->
+  <meta property="og:image" content="https://pizza-dough-calculator.example/assets/og-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta name="theme-color" content="#2b2b2b">
 
   <link rel="preload" href="style.css" as="style">
@@ -38,6 +49,33 @@
         <line x1="11" y1="17" x2="13" y2="17"/>
         <line x1="15" y1="17" x2="17" y2="17"/>
       </symbol>
+      <symbol id="icon-timeline-mix-dough" viewBox="0 0 24 24">
+        <path d="M4 13c0 4.4 3.6 8 8 8s8-3.6 8-8H4z"/>
+        <path d="M8 8c1-2 7-2 8 0"/>
+        <line x1="12" y1="2" x2="12" y2="6"/>
+      </symbol>
+      <symbol id="icon-timeline-move-to-fridge" viewBox="0 0 24 24">
+        <line x1="12" y1="2" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        <line x1="19.07" y1="4.93" x2="4.93" y2="19.07"/>
+        <line x1="12" y1="6" x2="9" y2="3"/>
+        <line x1="12" y1="6" x2="15" y2="3"/>
+        <line x1="12" y1="18" x2="9" y2="21"/>
+        <line x1="12" y1="18" x2="15" y2="21"/>
+        <line x1="6" y1="12" x2="3" y2="9"/>
+        <line x1="6" y1="12" x2="3" y2="15"/>
+        <line x1="18" y1="12" x2="21" y2="9"/>
+        <line x1="18" y1="12" x2="21" y2="15"/>
+      </symbol>
+      <symbol id="icon-timeline-pull-from-fridge" viewBox="0 0 24 24">
+        <path d="M5 10v9a2 2 0 002 2h10a2 2 0 002-2v-9"/>
+        <polyline points="12 3 12 15"/>
+        <polyline points="8 7 12 3 16 7"/>
+      </symbol>
+      <symbol id="icon-timeline-bake" viewBox="0 0 24 24">
+        <path d="M12 22a7 7 0 007-7c0-5-4-8-4-13-2 3-3 5-4 7-1-2-1-4-1-7-4 4-5 8-5 13a7 7 0 007 7z"/>
+      </symbol>
       <symbol id="icon-moon" viewBox="0 0 24 24">
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
       </symbol>
@@ -57,7 +95,7 @@
 
   <nav class="nav">
     <div class="nav-left">
-      <div class="nav-brand">Dough <span>Formula</span></div>
+      <div class="nav-brand">Pizza <span>Dough Calculator</span></div>
       <span class="nav-brand-divider" aria-hidden="true"></span>
       <a class="nav-link" href="index.html">
         <svg class="nav-link-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -76,7 +114,7 @@
   </nav>
 
   <header class="hiw-hero">
-    <h1>How the Dough Calculator Works</h1>
+    <h1>How the Pizza Dough Calculator Works</h1>
     <p>A plain-English guide to what the calculator uses, what it estimates, and what it leaves to your judgement.</p>
   </header>
 
@@ -296,22 +334,30 @@
             <div class="hiw-timeline-line"></div>
             <div class="hiw-timeline-nodes">
               <div class="hiw-timeline-node">
-                <div class="hiw-timeline-dot"></div>
+                <svg class="hiw-timeline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <use href="#icon-timeline-mix-dough"/>
+                </svg>
                 <div class="hiw-timeline-node-label">Mix</div>
                 <div class="hiw-timeline-node-temp">Room</div>
               </div>
               <div class="hiw-timeline-node">
-                <div class="hiw-timeline-dot"></div>
+                <svg class="hiw-timeline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <use href="#icon-timeline-move-to-fridge"/>
+                </svg>
                 <div class="hiw-timeline-node-label">Fridge</div>
                 <div class="hiw-timeline-node-temp">Cold</div>
               </div>
               <div class="hiw-timeline-node">
-                <div class="hiw-timeline-dot"></div>
-                <div class="hiw-timeline-node-label">Warm</div>
-                <div class="hiw-timeline-node-temp">Optional</div>
+                <svg class="hiw-timeline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <use href="#icon-timeline-pull-from-fridge"/>
+                </svg>
+                <div class="hiw-timeline-node-label">Pull</div>
+                <div class="hiw-timeline-node-temp">Warm-up</div>
               </div>
               <div class="hiw-timeline-node">
-                <div class="hiw-timeline-dot"></div>
+                <svg class="hiw-timeline-icon is-bake" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <use href="#icon-timeline-bake"/>
+                </svg>
                 <div class="hiw-timeline-node-label">Bake</div>
                 <div class="hiw-timeline-node-temp">Anchor</div>
               </div>
@@ -333,28 +379,28 @@
           </div>
         </div>
 
-        <div class="hiw-dark-card">
-          <span class="hiw-dark-card-label">Things to judge by feel</span>
+        <div class="hiw-dark-card hiw-limits-card">
+          <span class="hiw-dark-card-label">Still judge by feel</span>
           <div class="hiw-pct-table">
             <div class="hiw-pct-row">
-              <span class="hiw-pct-name">Starter strength</span>
-              <span class="hiw-pct-val">varies</span>
+              <span class="hiw-pct-name">Starter health</span>
+              <span class="hiw-pct-val">changes fermentation speed</span>
             </div>
             <div class="hiw-pct-row">
-              <span class="hiw-pct-name">Flour and handling</span>
-              <span class="hiw-pct-val">matter</span>
+              <span class="hiw-pct-name">Flour strength</span>
+              <span class="hiw-pct-val">changes handling and water tolerance</span>
             </div>
             <div class="hiw-pct-row">
               <span class="hiw-pct-name">Dough temperature</span>
-              <span class="hiw-pct-val">unknown</span>
+              <span class="hiw-pct-val">may differ from room temperature</span>
             </div>
             <div class="hiw-pct-row">
               <span class="hiw-pct-name">Oven setup</span>
-              <span class="hiw-pct-val">outside</span>
+              <span class="hiw-pct-val">changes bake timing and texture</span>
             </div>
             <div class="hiw-pct-row">
-              <span class="hiw-pct-name">Overproof warnings</span>
-              <span class="hiw-pct-val">guidance</span>
+              <span class="hiw-pct-name">Weather and handling</span>
+              <span class="hiw-pct-val">still need observation</span>
             </div>
           </div>
           <span class="hiw-pct-source">Use the schedule as a starting point, then adjust from what the dough is doing.</span>
@@ -365,18 +411,25 @@
 
   </main>
 
-  <footer class="hiw-footer">
+  <footer class="site-footer">
     <h2>Ready to calculate your formula?</h2>
-    <p class="hiw-footer-sub">Open the calculator and build your next dough.</p>
+    <p class="site-footer-sub">Open the calculator and build your next dough.</p>
     <a class="hiw-cta-btn" href="index.html">
       Open the Calculator
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 7h8M7 3l4 4-4 4"/>
       </svg>
     </a>
-    <div class="hiw-footer-divider"></div>
-    <div class="hiw-footer-brand">Dough Formula</div>
-    <p class="hiw-footer-copy">2026 Dough Formula</p>
+    <div class="site-footer-divider"></div>
+    <div class="site-footer-brand">Pizza Dough Calculator</div>
+    <div class="site-footer-links">
+      <!-- LAUNCH-TODO: replace placeholder URL before going live -->
+      <a href="https://www.buymeacoffee.com/REPLACE_HANDLE" rel="noopener" target="_blank">Buy me a coffee</a>
+      <!-- LAUNCH-TODO: replace placeholder URL before going live -->
+      <a href="REPLACE_AFFILIATE_URL" rel="sponsored noopener" target="_blank">Recommended scale</a>
+      <a href="index.html">Calculator</a>
+    </div>
+    <p class="site-footer-copy">2026 Pizza Dough Calculator &middot; No tracking. No accounts. Just dough math.</p>
   </footer>
 
 </body>

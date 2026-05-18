@@ -6,6 +6,14 @@ Compressed history of shipped user-visible changes and notable fixes.
 
 Read this file when historical context matters, such as tracing when behavior changed or understanding why an older implementation exists. Do not use it as the current source of truth for behavior.
 
+## 2026-05-18 - Public launch polish
+
+- Standardized the public name as Pizza Dough Calculator across page titles, nav, hero copy, README, and footer marks
+- Added a site-wide footer with Buy Me a Coffee and recommended-scale placeholder links
+- Restructured the yeast-measurement FAQ for scannability and linked the precision-scale mention with `rel="sponsored"`
+- Added canonical, Open Graph, Twitter Card, favicon, and social image references for launch sharing
+- Removed unused `.starter-pct-hint` CSS
+
 ## 2026-05-17
 
 - Retuned the main calculator explainer into quick bake notes and added FAQ entries for measuring tiny yeast amounts and calculator limitations
