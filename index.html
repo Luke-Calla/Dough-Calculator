@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- SEO & Social -->
-  <title>Pizza Dough Calculator</title>
+  <title>Pizza Dough Calculator – Ratios, Yeast &amp; Fermentation Schedule</title>
   <meta name="description" content="Calculate pizza dough ratios and fermentation schedules for Neapolitan, New York, and other styles. No accounts, no tracking - just the math.">
   <!-- LAUNCH-TODO: replace placeholder domain before going live -->
   <link rel="canonical" href="https://pizza-dough-calculator.example/">
@@ -40,6 +40,89 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
 <script src="site-shell.js" defer></script>
+
+  <!-- Structured Data -->
+  <!-- LAUNCH-TODO: replace placeholder domain before going live -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Pizza Dough Calculator",
+    "description": "Calculate pizza dough ratios and fermentation schedules for Neapolitan, New York, and other styles. No accounts, no tracking - just the math.",
+    "url": "https://pizza-dough-calculator.example/",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What dough ball weight should I use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Use the style presets as a starting point. Around 230 g works well for many Neapolitan pizzas, while larger New York-style pizzas often want a heavier ball. If you already know your preferred finished size, adjust the ball weight first and let the rest of the formula follow."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is the yeast amount so small?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yeast is calculated against flour weight, not the full dough weight. Longer ferments also need less yeast, so the number can look surprisingly small."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I measure such a small amount of yeast?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The best fallback is to dilute a known amount. Dissolve a 7 g sachet of instant yeast into 70 g of water — each 10 g of that liquid is about 1 g of yeast. Instant yeast is also roughly 3 g per teaspoon, 1.5 g per half teaspoon, or 0.75 g per quarter teaspoon if you need a volume estimate."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What hydration should I use for pizza dough?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "If you are unsure, stay with the preset for your chosen pizza style. Around the low-to-mid 60s is easier to handle, while higher hydration doughs can feel stickier and need more confidence during shaping."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use sourdough starter instead of yeast for pizza dough?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Switch to sourdough mode and the calculator will replace the yeast logic with starter-specific timing and ingredient handling. You will get a starter percentage suggestion and the recipe output will account for the flour and water already inside the starter."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does cold fermentation matter for pizza dough?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Cold fermentation slows the dough down, which changes both the yeast needed and the schedule needed to hit your bake time. It also affects the warm-up step, so short and long fridge ferments do not behave the same way."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does the calculator not know?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It does not know your flour strength, starter health, actual dough temperature, room-temperature swings, humidity, handling, or oven setup. Use the schedule as a starting point, then adjust from what the dough is doing."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
@@ -175,7 +258,7 @@
 
   <header class="page-header">
     <h1 id="calculatorTitle">Pizza Dough Calculator</h1>
-    <p>Build a pizza dough formula and bake schedule from your style, temperatures, and fermentation time.</p>
+    <p>Build a pizza dough formula and bake schedule from style, temperatures, and fermentation time.</p>
   </header>
 
   <main class="main">
@@ -626,17 +709,17 @@
           </details>
 
           <details class="faq-item">
-            <summary>What hydration should I start with?</summary>
+            <summary>What hydration should I use for pizza dough?</summary>
             <p>If you are unsure, stay with the preset for your chosen pizza style. Around the low-to-mid 60s is easier to handle, while higher hydration doughs can feel stickier and need more confidence during shaping.</p>
           </details>
 
           <details class="faq-item">
-            <summary>Can I use sourdough instead of yeast?</summary>
+            <summary>Can I use sourdough starter instead of yeast for pizza dough?</summary>
             <p>Yes. Switch to sourdough mode and the calculator will replace the yeast logic with starter-specific timing and ingredient handling. You will get a starter percentage suggestion and the recipe output will account for the flour and water already inside the starter.</p>
           </details>
 
           <details class="faq-item">
-            <summary>Why does fridge time matter?</summary>
+            <summary>Why does cold fermentation matter for pizza dough?</summary>
             <p>Cold fermentation slows the dough down, which changes both the yeast needed and the schedule needed to hit your bake time. It also affects the warm-up step, so short and long fridge ferments do not behave the same way.</p>
           </details>
 

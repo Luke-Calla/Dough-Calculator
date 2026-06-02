@@ -74,6 +74,7 @@
   --font-sans:    'Inter', system-ui, sans-serif;
   --radius:       8px;           /* default border radius */
   --radius-lg:    12px;          /* larger radius for cards */
+  --nav-height:   56px;          /* sticky top navigation height */
 }
 
 /* ========================================================
@@ -127,7 +128,7 @@ body {
 .nav {
   background-color: var(--charcoal);
   padding: 0 24px;
-  height: 56px;
+  height: var(--nav-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -335,7 +336,7 @@ body {
 
   .col-outputs {
     position: sticky;
-    top: 24px;
+    top: calc(var(--nav-height) + 24px);
   }
 
   .main {
